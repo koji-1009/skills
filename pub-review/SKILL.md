@@ -215,6 +215,12 @@ never as a silent gate):**
 - **Utility grab-bag — directly or transitively.** A pile of unrelated helpers with no shared concept; or
   **depending on one**, especially the author's own personal "utils/helpers" package. The supply-chain
   risk propagates through the dependency graph, so a clean package that pulls in a junk-drawer inherits it.
+  **But trace propagation only through dependencies the author chose** — third-party packages they pulled
+  in. The transitive closure of platform / first-party dependencies (the `flutter` SDK, `dart:*`, official
+  toolkits) is the platform owner's responsibility, not the author's; exclude it from the evaluation. If
+  those were compromised, every package is exposed and no author can avoid it — do not charge an author for
+  what is outside their control. Evaluate the author's own third-party choices and their pinning/hygiene,
+  and stop at the platform boundary.
 - **Cramming unrelated operations into one return type (pattern B).** One method returning a union of
   results from genuinely different operations, the caller discriminating by type to learn what it even did,
   is a design-judgment signal that makes the whole dependency risky. (Errors stuffed into the return union
