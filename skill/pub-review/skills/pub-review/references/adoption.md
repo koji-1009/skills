@@ -16,9 +16,9 @@ Start with the import scan, the dependency inventory, and its checkpoint (`SKILL
 4. **Risk sweep** (`SKILL.md`) across its full add-mode scope.
 5. **`test/`** and **`example/`** — what is tested, and how a consumer is expected to use the API.
 6. **`README.md` / `CHANGELOG.md`** — claims to check against the code; release cadence; breaking-change discipline.
-7. **Plugin platform code and build hooks** (`android/`, `ios/`, `macos/`, `web/`, `windows/`, `linux/`, `hook/`, `src/` native sources), including endorsed federated implementations (`SKILL.md` Step 2) — interop mechanism, manifest/permission/plist requirements, native library versions.
+7. **Plugin platform code, build hooks, builders, and analyzer plugins** (`android/`, `ios/`, `macos/`, `web/`, `windows/`, `linux/`, `hook/`, `src/` native sources, `build.yaml` builders, analyzer plugin code), including endorsed federated implementations (`SKILL.md` Step 2) — interop mechanism, manifest/permission/plist requirements, native library versions, and what runs on the developer's machine.
 
-**Large packages.** When `lib/src`, the native sources, or `example/` are too large to read in full, the risk sweep, `pubspec.yaml`, the export files, the manifests, build files, and permission declarations remain complete. Read fully the implementation behind the exported symbols the user's use case touches, in Dart and in each platform's native code (ask what they will use if unknown), and list the rest as *not read* in the coverage record.
+**Large packages.** When `lib/src`, the native sources, or `example/` are too large to read in full, the risk sweep, `pubspec.yaml`, the export files, the manifests, build files, and permission declarations remain complete. Read fully the implementation behind the exported symbols the user's use case touches, in Dart and in each platform's native code (ask what they will use if unknown; when no one can answer, take the operations the README leads with and name that choice), and list the rest as *not read* in the coverage record.
 
 ## Exits
 
@@ -48,13 +48,13 @@ When several packages solve the same problem, evaluate them together. The pub.de
 # Evaluation: <package> <version>
 
 ## Summary
-- <strength> — <finding, one line> (`file:line` / field)   ← one line per highest-strength finding, ordered by strength
+- <strength> — <finding, one line> (`file:line` / field)   ← the findings at the highest strength level present, one line each; lower levels stay in Risk
 - Not checked: <lens or category that matters most> — <reason>
 - Tension: <main tension, one line>
 
 ## Context
 Entry: add · Project: <path or "none (fresh addition)"> · Targets: <list or unknown> · Distribution/license constraint: <given or none> · Defaulted: <Step 0 items not answered>
-Run: <date> · Dart <version> · Flutter <version> · archive_sha256 <hash> · repository <url>@<commit>
+Run: <date> · Dart <version> · Flutter <version> · archive_sha256 <hash, one per archive read> · repository <url>@<commit> (tag <matched>)
 
 ## Gate
 Publisher: <publisherId or null> · Gate: fired (scrutiny skipped) | not fired (read the source)
@@ -64,7 +64,7 @@ Paradigm package | General package — <one line, why it matters here; which sou
 
 ## Dependency inventory
 - Platform: <count> · Author's own: <count, names> · Third-party: <count, names; unverified publishers marked> · Outside pub: <name version (`file:line`), …> · Already in project: <names>
-- Checkpoint: <question as asked, delegated-core packages marked> | skipped — nothing outside Platform | not asked — <reason>
+- Checkpoint: <question as asked, delegated-core packages marked> | skipped — nothing outside Platform or Outside pub | not asked — <reason>
 - Read in detail (user-approved): <names> | none · Outside pub investigated: <names — what was done> | none
 
 ## Functionality & quality
