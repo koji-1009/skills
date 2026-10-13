@@ -8,7 +8,7 @@ With a project path: evaluate the version the project would actually resolve —
 
 ## Read order
 
-Start with the dependency inventory and its checkpoint (`SKILL.md`, *Dependency inventory*), then:
+Start with the import scan, the dependency inventory, and its checkpoint (`SKILL.md`, *Dependency inventory*), then:
 
 1. **`pubspec.yaml`** — SDK constraint, `flutter.plugin.platforms`, dependencies vs. dev_dependencies. Do not count dependencies naively (a near-empty list can be a *symptom* of reimplementing everything).
 2. **`lib/<package>.dart`** and every other file directly under `lib/` — the public export surface. Note what is exported vs. kept in `src/`. Classify the package here (`SKILL.md`, *Classify the package*).
@@ -18,7 +18,7 @@ Start with the dependency inventory and its checkpoint (`SKILL.md`, *Dependency 
 6. **`README.md` / `CHANGELOG.md`** — claims to check against the code; release cadence; breaking-change discipline.
 7. **Plugin platform code and build hooks** (`android/`, `ios/`, `macos/`, `web/`, `windows/`, `linux/`, `hook/`, `src/` native sources), including endorsed federated implementations (`SKILL.md` Step 2) — interop mechanism, manifest/permission/plist requirements, native library versions.
 
-**Large packages.** When `lib/src` is too large to read in full, every step except 3 remains complete; for step 3, read fully the implementation behind the exported symbols the user's use case touches (ask what they will use if unknown), and list the rest as *not read* in the coverage record.
+**Large packages.** When `lib/src`, the native sources, or `example/` are too large to read in full, the risk sweep, `pubspec.yaml`, the export files, the manifests, build files, and permission declarations remain complete. Read fully the implementation behind the exported symbols the user's use case touches, in Dart and in each platform's native code (ask what they will use if unknown), and list the rest as *not read* in the coverage record.
 
 ## Exits
 
@@ -33,7 +33,7 @@ When `isDiscontinued` is true, name `replacedBy` among the facts bearing on the 
 When several packages solve the same problem, evaluate them together. The pub.dev download-sort already names the popular choice, so a comparison is only worth running to surface what that sort hides.
 
 - **Evaluate each candidate independently** — a full two-axis reading per package, with evidence and its own coverage record. Do **not** let the candidate count dilute per-package depth; the risk reading on each must be as deep as a solo evaluation.
-- **Subagents.** If subagents are available, evaluate each candidate in its own subagent and let the parent assemble the cross-cut. Tell each subagent to read `SKILL.md` and this file (give their absolute paths), and pass it the same context: the project path (or the facts read from it: SDK constraint, existing dependencies, target platforms), the distribution/license constraint, and the trusted-author list — and tell it that Step 0 is already done, so it must not ask the operator anything. Each subagent classifies its own package and returns the single-package format, coverage record included. Subagents cannot run the dependency-inventory checkpoint: have each return its inventory first, ask the user once for all candidates, then pass each subagent the packages approved for detailed reading.
+- **Subagents.** If subagents are available, evaluate each candidate in its own subagent and let the parent assemble the cross-cut. Tell each subagent to read `SKILL.md` and this file (give their absolute paths), and pass it the same context: the project path (or the facts read from it: SDK constraint, existing dependencies, target platforms), the distribution/license constraint, and the trusted-author list — and tell it that Step 0 is already done, so it must not ask the operator anything. Each subagent classifies its own package and returns the single-package format, coverage record included. Subagents cannot run the dependency-inventory checkpoint: have each return its inventory first, ask the user once for all candidates, then pass each subagent the packages and *Outside pub* dependencies approved for further reading.
 - **Gate status.** For each candidate, note whether the gate fired (`publisherId` matched the operator's trusted list → scrutiny skipped) or not (stands on its source). If none matched, say so — all are judged on code. Gate status is a fact about what was read, not a ranking.
 - **Difference table — relative facts, not a ranking.** Tabulate only the axes that actually differ, cells anchored to facts/`file:line`. **Never** add a "winner" or "recommended" row.
 - **Surface what the download-sort hides.** Name the most-downloaded candidate, and set its highest-strength risk findings and main functionality gaps beside the other candidates' on the same categories — facts side by side, without saying which way they point.
@@ -48,7 +48,8 @@ When several packages solve the same problem, evaluate them together. The pub.de
 # Evaluation: <package> <version>
 
 ## Summary
-- <strength> — <highest-strength finding, one line> (`file:line` / field)
+- <strength> — <finding, one line> (`file:line` / field)   ← one line per highest-strength finding, ordered by strength
+- Not checked: <lens or category that matters most> — <reason>
 - Tension: <main tension, one line>
 
 ## Context
@@ -62,20 +63,24 @@ Publisher: <publisherId or null> · Gate: fired (scrutiny skipped) | not fired (
 Paradigm package | General package — <one line, why it matters here; which source settled it>
 
 ## Dependency inventory
-- Platform: <count> · Author's own: <count, names> · Third-party: <count, names; unverified publishers marked> · Already in project: <names>
-- Read in detail (user-approved): <names> | none
+- Platform: <count> · Author's own: <count, names> · Third-party: <count, names; unverified publishers marked> · Outside pub: <name version (`file:line`), …> · Already in project: <names>
+- Checkpoint: <question as asked, delegated-core packages marked> | skipped — nothing outside Platform | not asked — <reason>
+- Read in detail (user-approved): <names> | none · Outside pub investigated: <names — what was done> | none
 
 ## Functionality & quality
 For each lens:
 - **<lens>**: <finding with `file:line`> | checked — none (<what was read>) | not checked (<reason>)
 
 ## Risk
-For each category, findings ordered by strength:
-- **<category>** — strength: severe | high | moderate | low
-  - evidence: `file:line` / construct / metadata field
-  - why it bites: <one or two lines>
-  - bites hardest when: <project condition>
+For each category, findings ordered by strength; a category with several findings lists each with its own strength:
+- **<category>**
+  - <strength: severe | high | moderate | low> — <finding>
+    - evidence: `file:line` / construct / metadata field
+    - why it bites: <one or two lines>
+    - bites hardest when: <project condition>
 - **<category>** — checked — none (<what was searched>) | not checked (<reason>)
+- **License** — <package license; dependency and vendored licenses> — facts only when no constraint was given; otherwise the strength against the constraint
+- **Download base** — <weak signal, one line; no strength>
 
 ## Tensions
 - <functionality-vs-risk divergences; same-observation-two-axes notes>
@@ -121,7 +126,7 @@ Per candidate: fired | not fired. If none fired, state that all stand on source.
 | license | … | … | … |
 | top risk | … | … | … |
 | maintenance | … | … | … |
-| downloads (weak) | … | … | … |
+| downloads (weak, no strength) | … | … | … |
 (rows = only the axes that differ; cells = facts)
 
 ## Shared risks

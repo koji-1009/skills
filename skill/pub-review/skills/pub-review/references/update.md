@@ -21,7 +21,7 @@ Run the author gate (`SKILL.md` Step 1) on the `publisherId`. If it fires, the d
 2. **Source diff.** `diff -r` the two unpacked trees. Read every changed file within the risk-sweep scope (`SKILL.md`) in its new form, and every deleted file in its old form. Where a changed line newly calls into unchanged code, read the called code too. Unchanged areas get no new reading; the coverage record says so. **Large diffs:** `pubspec.yaml`, the changed export files directly under `lib/`, `hook/`, platform directories, and the risk sweep over all changed files remain complete; among changed `lib/src` files, read fully those on paths from changed exported symbols and those with risk-sweep hits, and list the rest as *not read*.
 3. **Classification.** Classify the target (`SKILL.md`, *Classify the package*). If the diff changes the public export surface, check whether the change introduces or removes a paradigm on it.
 4. **Public API delta.** Removed, renamed, or re-typed exported symbols; changed defaults; changed thrown types — each with `file:line` in the target (or the current version, for removals). With a project path, search the project's own source for the imports and symbols affected and list each call site the upgrade touches with `file:line` in the project. Without one, record *project impact: not checked — no project path*.
-5. **Dependency delta.** Compare both pubspecs: added, removed, or re-constrained dependencies; SDK lower-bound changes. With a project path, run `dart pub add <package>@<target> --dry-run -C <project>` (or `flutter pub add`) to see what else in the project's graph would move, or whether it resolves at all. Without one, record the dry run as *not checked — no project path*. Build the dependency inventory (`SKILL.md`) for the target and mark what is added or removed relative to the current version; the checkpoint covers the added non-platform packages.
+5. **Dependency delta.** Compare both pubspecs: added, removed, or re-constrained dependencies; SDK lower-bound changes. With a project path, run `dart pub add <package>@<target> --dry-run -C <project>` (or `flutter pub add`) to see what else in the project's graph would move, or whether it resolves at all. Without one, record the dry run as *not checked — no project path*. Build the dependency inventory (`SKILL.md`) for the target and mark what is added or removed relative to the current version; the checkpoint covers the added non-platform packages and the added *Outside pub* dependencies.
 6. **Identity and license delta.** A change of hands is a supply-chain fact to report even when the code looks fine. Sources: the `repository`/`homepage` fields in each version's pubspec (from the versions list in Step 1); the `LICENSE` file in both unpacked trees; and, with `gh`, the commit authors and release-tag authors between the two tags. The pub.dev API gives only the *current* `publisherId`, not a per-version one: report it, and record the publisher at the current version as *not checked — no per-version source* unless the operator supplies it.
 7. **Changelog vs. diff.** Check every `CHANGELOG.md` entry between the two versions against the diff. A breaking change in the diff that the changelog omits or labels as minor is a semver-discipline finding; a changelog claim with no corresponding code is a claim–implementation finding.
 8. **Risk delta.** Run the risk sweep (`SKILL.md`) on the changed files, read the Axis 1 lenses and Axis 2 categories against the diff, and give each category one state:
@@ -52,7 +52,8 @@ When `isDiscontinued` is true, name `replacedBy` among the facts bearing on the 
 # Update: <package> <current> → <target>
 
 ## Summary
-- <strength> — <highest-strength new or resolved finding, one line> (`file:line` / field)
+- <strength> — <new or resolved finding, one line> (`file:line` / field)   ← one line per highest-strength finding, ordered by strength
+- Not checked: <lens or category that matters most> — <reason>
 - Tension: <main tension, one line>
 - Scope: this reading covers the diff only; risks in unchanged code are not assessed here.
 
@@ -78,7 +79,9 @@ Publisher: <publisherId or null> · Gate: fired (diff reading skipped) | not fir
 
 ## Dependency delta
 - <added/removed/re-constrained>; project graph moves from the dry run | not checked — no project path
-- Inventory change: added <platform / author's own / third-party, names> · removed <names> · read in detail (user-approved): <names> | none
+- Inventory change: added <platform / author's own / third-party / outside pub, names> · removed <names>
+- Checkpoint: <question as asked> | skipped — nothing added outside Platform | not asked — <reason>
+- Read in detail (user-approved): <names> | none · Outside pub investigated: <names — what was done> | none
 
 ## Identity and license delta
 - <publisher/repo/maintainer/license changes> | none
@@ -87,10 +90,10 @@ Publisher: <publisherId or null> · Gate: fired (diff reading skipped) | not fir
 - **<lens>**: <what changed, `file:line`> | untouched by the diff | not checked (<reason>)
 
 ## Risk delta
-For each category, new and resolved findings ordered by strength:
+For each category, new and resolved findings ordered by strength, each with its own strength:
 - **<category>** — new | resolved | untouched by the diff | not checked
-  - strength (new or resolved): severe | high | moderate | low
-  - evidence, why it bites, bites hardest when
+  - <new | resolved> · <strength: severe | high | moderate | low> — <finding>
+    - evidence, why it bites, bites hardest when
 
 ## Changelog vs. diff
 - <omissions, mislabeled breaking changes, unbacked claims> | consistent

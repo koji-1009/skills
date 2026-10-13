@@ -12,7 +12,7 @@
         "Every risk finding cites a file:line, a named construct, or a named pub.dev metadata field",
         "Every risk category is in one of three states (found, checked with nothing found, not checked — or direct translations); none is silently omitted",
         "The package is classified as a paradigm or general package, citing which source settled it",
-        "The archive was compared with the package's subdirectory of the monorepo (flutter_svg's repository URL is a browse URL), naming the tag that matched or listing the tags tried",
+        "The archive was compared with the package's subdirectory of the monorepo (flutter_svg's repository URL is a browse URL), naming the tag that matched or stating that no tag names the version",
         "The coverage record lists the search terms used for each risk-sweep category",
         "Dependencies were resolved through a scratch consumer project, and the inventory sorts every resolved package into platform, author's own, and third-party by publisherId",
         "Before reading dependencies in detail, the run asks the user which non-platform packages to read, or, with no one to answer, reads none and says so",
