@@ -13,12 +13,12 @@ Unpack both (`SKILL.md` Step 2). The archive-vs-repository comparison applies to
 
 ## Gate
 
-Run the author gate (`SKILL.md` Step 1) against the **target's** publisher and repository owner, not the current one's. If the gate fires, the diff reading may be skipped; steps 1, 5 and 6 below are still reported, because they are metadata and project facts. If the identity delta (step 6) shows the publisher or owner changed between the two versions, a gate match on the current version does not carry over.
+Run the author gate (`SKILL.md` Step 1) on the `publisherId`. If it fires, the diff reading may be skipped; steps 1, 4, 5 and 6 below are still reported, because they are metadata and project facts the user needs to move. pub.dev exposes only the current `publisherId`, so the gate cannot show who published the target; if the identity delta (step 6) shows a change of hands between the two versions, the gate does not fire.
 
 ## Steps
 
 1. **Version history.** List every version between current and target with its `published` date, and flag retracted ones. Report any advisory whose `affected[].versions` include the current version — that makes the upgrade a fix, not just a change — and any that include the target. Report package-level status — `isDiscontinued`/`replacedBy`, whether the target is retracted, `publisherId` — as facts in their own section, not as deltas.
-2. **Source diff.** `diff -r` the two unpacked trees. Read every changed file under `lib/`, `hook/`, and platform directories in its new form. Unchanged areas get no new reading; the coverage record says so. **Large diffs:** `pubspec.yaml`, the changed export files directly under `lib/`, `hook/`, platform directories, and the risk sweep over all changed files remain complete; among changed `lib/src` files, read fully those on paths from changed exported symbols and those with risk-sweep hits, and list the rest as *not read*.
+2. **Source diff.** `diff -r` the two unpacked trees. Read every changed file within the risk-sweep scope (`SKILL.md`) in its new form, and every deleted file in its old form. Where a changed line newly calls into unchanged code, read the called code too. Unchanged areas get no new reading; the coverage record says so. **Large diffs:** `pubspec.yaml`, the changed export files directly under `lib/`, `hook/`, platform directories, and the risk sweep over all changed files remain complete; among changed `lib/src` files, read fully those on paths from changed exported symbols and those with risk-sweep hits, and list the rest as *not read*.
 3. **Classification.** Classify the target (`SKILL.md`, *Classify the package*). If the diff changes the public export surface, check whether the change introduces or removes a paradigm on it.
 4. **Public API delta.** Removed, renamed, or re-typed exported symbols; changed defaults; changed thrown types — each with `file:line` in the target (or the current version, for removals). With a project path, search the project's own source for the imports and symbols affected and list each call site the upgrade touches with `file:line` in the project. Without one, record *project impact: not checked — no project path*.
 5. **Dependency delta.** Compare both pubspecs: added, removed, or re-constrained dependencies; SDK lower-bound changes. With a project path, run `dart pub add <package>@<target> --dry-run -C <project>` (or `flutter pub add`) to see what else in the project's graph would move, or whether it resolves at all. Without one, record the dry run as *not checked — no project path*. A newly added third-party dependency gets the full util-contamination reading.
@@ -51,11 +51,17 @@ When `isDiscontinued` is true, name `replacedBy` among the facts bearing on the 
 ```markdown
 # Update: <package> <current> → <target>
 
+## Summary
+- <strength> — <highest-strength new or resolved finding, one line> (`file:line` / field)
+- Tension: <main tension, one line>
+- Scope: this reading covers the diff only; risks in unchanged code are not assessed here.
+
 ## Context
-Entry: update · Project: <path or "none"> · Targets: <list or unknown> · Distribution/license constraint: <given or none>
+Entry: update · Project: <path or "none"> · Targets: <list or unknown> · Distribution/license constraint: <given or none> · Defaulted: <Step 0 items not answered>
+Run: <date> · Dart <version> · Flutter <version> · archive_sha256 <current> / <target> · repository <url>@<commit>
 
 ## Gate
-Target publisher: <publisherId or null> · Repo owner: <handle> · Gate: fired (diff reading skipped) | not fired
+Publisher: <publisherId or null> · Gate: fired (diff reading skipped) | not fired
 
 ## Package status (not a delta)
 - Discontinued: <isDiscontinued; replacedBy> · Target retracted: <yes/no> · Verified publisher: <publisherId or null>
@@ -80,7 +86,7 @@ Target publisher: <publisherId or null> · Repo owner: <handle> · Gate: fired (
 - **<lens>**: <what changed, `file:line`> | untouched by the diff | not checked (<reason>)
 
 ## Risk delta
-For each category:
+For each category, new and resolved findings ordered by strength:
 - **<category>** — new | resolved | untouched by the diff | not checked
   - strength (new or resolved): severe | high | moderate | low
   - evidence, why it bites, bites hardest when

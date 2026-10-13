@@ -12,8 +12,11 @@
         "Every risk finding cites a file:line, a named construct, or a named pub.dev metadata field",
         "Every risk category is in one of three states (found, checked with nothing found, not checked — or direct translations); none is silently omitted",
         "The package is classified as a paradigm or general package, citing which source settled it",
-        "The unpacked archive was compared with the repository at the matching tag, or the absence of a matching tag is stated",
-        "The risk sweep's searches (statics, network/CDN fetches, Process, dart:io on web, DynamicLibrary, codegen parts) are reflected in the coverage record",
+        "The archive was compared with the package's subdirectory of the monorepo (flutter_svg's repository URL is a browse URL), naming the tag that matched or listing the tags tried",
+        "The coverage record lists the search terms used for each risk-sweep category",
+        "The output opens with a summary of the highest-strength findings, ordered by strength, without pointing to an exit",
+        "The run record states the date, SDK versions, archive_sha256, and repository commit",
+        "No command that runs the package's hooks (dart run/test/build, flutter run/test/build) was executed",
         "A tensions section names where the functionality and risk readings diverge, or states that they do not",
         "Strength is expressed on the four-level scale (severe, high, moderate, low) or a direct translation of it",
         "The output contains a coverage section listing files read and not read",
@@ -48,6 +51,7 @@
         "CHANGELOG entries between the two versions are checked against the diff",
         "Each risk category is labeled new, resolved, untouched by the diff, or not checked (or direct translations)",
         "Project call sites and the dependency dry run are marked not checked because no project path was given",
+        "The summary states that risks in unchanged code are not assessed by this reading",
         "The exits offered are upgrade, stay pinned, and leave the package (or direct translations), and none is chosen"
       ]
     },
@@ -57,7 +61,7 @@
       "expected_output": "The author gate fires on the flutter.dev publisher match; source scrutiny may be skipped, but metadata findings (discontinued, advisories, license) are still reported and nothing is flattered.",
       "files": [],
       "expectations": [
-        "The gate decision cites the publisherId returned by the pub.dev API",
+        "The gate decision cites the publisherId returned by the pub.dev API, not the pubspec repository",
         "Advisories, discontinued status, and license are reported even though the gate fired",
         "If any source is read, its findings are reported without softening",
         "The output contains no recommendation or chosen exit"
@@ -66,11 +70,11 @@
     {
       "id": 5,
       "prompt": "Dependabot opened a PR bumping flutter_markdown in our app. Should I merge it?",
-      "expected_output": "The skill triggers on a dependabot phrasing and runs the update entry point; because flutter_markdown is discontinued, the reading names flutter_markdown_plus as replacedBy among the facts bearing on the leave-the-package exit, without choosing an exit.",
+      "expected_output": "The skill triggers on a dependabot phrasing and takes the update entry point; with no current version available it reports the package status — flutter_markdown is discontinued, replacedBy flutter_markdown_plus — and stops without choosing an exit.",
       "files": [],
       "expectations": [
         "The skill was triggered and references/update.md was read",
-        "The current version is asked for (or read from a project path) before diffing; if no answer is available, the run stops and says the diff cannot be computed",
+        "Because no current version or project path is available, the run fetches the metadata, reports the package status, says the diff cannot be computed without the current version, and stops",
         "flutter_markdown is reported as discontinued with replacedBy flutter_markdown_plus in the package-status section",
         "The output does not say to merge or not to merge"
       ]
