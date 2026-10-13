@@ -1,0 +1,79 @@
+{
+  "skill_name": "pub-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm thinking of using flutter_svg. Is it a good package?",
+      "expected_output": "An add evaluation of flutter_svg with separate functionality/quality and risk readings, file:line evidence, a coverage record, and a hand-off with no chosen exit.",
+      "files": [],
+      "expectations": [
+        "references/adoption.md was read",
+        "The source was obtained with `dart pub unpack` (or a repository clone at the matching tag), not described from memory",
+        "Every risk finding cites a file:line, a named construct, or a named pub.dev metadata field",
+        "Every risk category is in one of three states (found, checked with nothing found, not checked — or direct translations); none is silently omitted",
+        "The package is classified as a paradigm or general package, citing which source settled it",
+        "The unpacked archive was compared with the repository at the matching tag, or the absence of a matching tag is stated",
+        "The risk sweep's searches (statics, network/CDN fetches, Process, dart:io on web, DynamicLibrary, codegen parts) are reflected in the coverage record",
+        "A tensions section names where the functionality and risk readings diverge, or states that they do not",
+        "Strength is expressed on the four-level scale (severe, high, moderate, low) or a direct translation of it",
+        "The output contains a coverage section listing files read and not read",
+        "The output contains no recommendation, winner, score, or chosen exit",
+        "Likes, pub points, or download counts are not used as a criterion"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I need to render Markdown. Which should I use: flutter_markdown, flutter_markdown_plus, or markdown_widget?",
+      "expected_output": "A comparison with an independent full reading per candidate, a difference table without a ranking, shared risks stated once, and metadata showing flutter_markdown is discontinued with replacedBy flutter_markdown_plus.",
+      "files": [],
+      "expectations": [
+        "flutter_markdown is reported as discontinued, with flutter_markdown_plus named as its replacedBy, sourced from the pub.dev API",
+        "Each candidate has its own functionality/quality and risk readings with its own coverage record",
+        "The difference table has no winner or recommended row",
+        "Risks common to all candidates are stated once in a shared-risks section",
+        "The hand-off does not choose a candidate"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Our project is on http 0.13.6. Check whether it's OK to move to the latest 1.x.",
+      "expected_output": "An update reading of the diff from http 0.13.6 to the latest 1.x without a project path: version history, advisories, public API delta, dependency delta, changelog-vs-diff check, risk delta, and upgrade / stay pinned / leave the package exits without a choice. Project-dependent checks are marked not checked.",
+      "files": [],
+      "expectations": [
+        "references/update.md was read",
+        "Both 0.13.6 and the target version were unpacked and diffed",
+        "The archive-vs-repository comparison was run on the target version only",
+        "Intermediate versions are listed with their published dates",
+        "Removed or changed exported symbols are listed with file:line in the package source",
+        "CHANGELOG entries between the two versions are checked against the diff",
+        "Each risk category is labeled new, resolved, untouched by the diff, or not checked (or direct translations)",
+        "Project call sites and the dependency dry run are marked not checked because no project path was given",
+        "The exits offered are upgrade, stay pinned, and leave the package (or direct translations), and none is chosen"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Developers I trust: dart.dev and flutter.dev. Can I use path_provider?",
+      "expected_output": "The author gate fires on the flutter.dev publisher match; source scrutiny may be skipped, but metadata findings (discontinued, advisories, license) are still reported and nothing is flattered.",
+      "files": [],
+      "expectations": [
+        "The gate decision cites the publisherId returned by the pub.dev API",
+        "Advisories, discontinued status, and license are reported even though the gate fired",
+        "If any source is read, its findings are reported without softening",
+        "The output contains no recommendation or chosen exit"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Dependabot opened a PR bumping flutter_markdown in our app. Should I merge it?",
+      "expected_output": "The skill triggers on a dependabot phrasing and runs the update entry point; because flutter_markdown is discontinued, the reading names flutter_markdown_plus as replacedBy among the facts bearing on the leave-the-package exit, without choosing an exit.",
+      "files": [],
+      "expectations": [
+        "The skill was triggered and references/update.md was read",
+        "The current version is asked for (or read from a project path) before diffing; if no answer is available, the run stops and says the diff cannot be computed",
+        "flutter_markdown is reported as discontinued with replacedBy flutter_markdown_plus in the package-status section",
+        "The output does not say to merge or not to merge"
+      ]
+    }
+  ]
+}
