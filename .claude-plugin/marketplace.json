@@ -1,0 +1,14 @@
+{
+  "name": "koji-1009-skills",
+  "owner": {
+    "name": "koji-1009"
+  },
+  "description": "Agent skills by koji-1009: pub-review for source-level review of Flutter/Dart dependencies.",
+  "plugins": [
+    {
+      "name": "pub-review",
+      "source": "./skill/pub-review",
+      "description": "Source-level review of a pub.dev (Flutter/Dart) dependency before adding or upgrading it — two independent readings, functionality/quality and risk, anchored to file:line, handed over without a verdict."
+    }
+  ]
+}

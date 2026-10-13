@@ -1,0 +1,9 @@
+{
+  "name": "pub-review",
+  "description": "Source-level review of a pub.dev (Flutter/Dart) dependency before adding or upgrading it — two independent readings, functionality/quality and risk, anchored to file:line, handed over without a verdict.",
+  "author": {
+    "name": "koji-1009"
+  },
+  "repository": "https://github.com/koji-1009/skills",
+  "license": "MIT"
+}
