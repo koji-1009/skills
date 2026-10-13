@@ -68,17 +68,35 @@ Work in a scratch directory outside the user's project: the agent's scratchpad d
 ```bash
 mkdir -p <scratch>
 dart pub unpack <package>@<version> --output=<scratch> --no-resolve
-# then resolve dependencies, so the transitive graph exists:
-flutter pub get -C <scratch>/<package>-<version>   # package depends on the Flutter SDK
-dart pub get -C <scratch>/<package>-<version>      # pure Dart package
-dart pub deps --style=compact --no-dev -C <scratch>/<package>-<version>
 ```
 
 `--force` overwrites an existing extraction. Omit `@<version>` for the latest stable. Which version(s) to unpack is set by the mode file.
 
+**Resolve as a consumer.** Do not resolve inside the unpacked package: that also resolves its dev_dependencies, which in monorepos are often path dependencies that do not exist outside the repository. Instead, write `<scratch>/consumer/pubspec.yaml` with `name: consumer`, the package's SDK constraint, and a single dependency `<package>: <version>` (add `flutter: {sdk: flutter}` for a Flutter package), then run each on its own:
+
+```bash
+flutter pub get -C <scratch>/consumer   # Flutter package
+dart pub get -C <scratch>/consumer      # pure Dart package
+dart pub deps --style=list -C <scratch>/consumer
+```
+
+The result is exactly what a consumer would pull in, dev dependencies excluded. It feeds the dependency inventory below.
+
 **Federated plugins.** If the pubspec names endorsed implementations (`flutter.plugin.platforms.<platform>.default_package`), unpack those for the project's target platforms (all of them when targets are unknown) and include them in the reading and the risk sweep: their platform code is where the native requirements and native risks live.
 
 **Archive vs. repository.** For the version being judged (the target, in update mode), find the matching source in the repository and compare it with the unpacked archive. The pubspec `repository` is often a browse URL into a monorepo (`https://github.com/<org>/<repo>/tree/<branch>/<path>`): clone `https://github.com/<org>/<repo>` and compare the `<path>` subdirectory. Tags vary — try `v<version>`, `<version>`, `<package>-v<version>`, and `<package>-<version>`, and record which one matched. Compare every file the archive ships, generated files included; a difference that pub explains (e.g. a rewritten workspace `pubspec.yaml`) is noted, not flagged. Code present in the archive but absent from the tagged repo is a risk finding (see *Published archive diverges*). If no tag matches, record the tags tried. The match proves only that the archive equals *that* repository, which the uploader chose; say so when the repository is not under the verified publisher's organization. If `dart` or pub.dev is unreachable, the clone becomes the source — and the version match must then be verified from the tag and the pubspec version field.
+
+## Dependency inventory (checkpoint)
+
+Before reading the source, list every package the consumer resolution pulled in, direct and transitive, and assess it heuristically. For each, fetch its `publisherId` and Step 1 metadata (discontinued, advisories, latest publish date), and sort it into one of three groups:
+
+- **Platform** — published by `dart.dev`, `flutter.dev`, or another publisher under those domains (e.g. `tools.dart.dev`). Maintained by the Dart and Flutter teams; not read further.
+- **Author's own** — published by the same `publisherId` as the evaluated package, or, when it has none, pointing to a repository under the same owner.
+- **Third-party** — everything else; note which have no verified publisher.
+
+The inventory is itself a risk reading. A footprint made mostly of platform packages is unremarkable. A large number of third-party packages, packages without a verified publisher, or a heavy reliance on the author's own packages (personal "core"/"utils" families) is the supply-chain and bus-factor risk this skill exists to surface: report it under *Utility grab-bag* and *Single-maintainer concentration* with the counts and names. With a project path, mark packages the project already resolves; they add no increment.
+
+Then stop and show the user the inventory with the heuristic reading, and ask which non-platform packages to read in detail. On approval, unpack each chosen package and give it the risk sweep and the Axis 2 categories (no Axis 1 reading); findings go under the evaluated package's risk, attributed to the dependency that carries them. Packages not chosen are *not read* in the coverage record, with their metadata findings still reported. When no one can answer (see Step 0), read none and say so.
 
 ## Classify the package
 
@@ -135,7 +153,7 @@ For each finding give: the category, the strength, **evidence** (`file:line`, co
 
 - **Reimplementing the SDK or proven infrastructure.** Rebuilding `Navigator`, `MediaQuery`, `Theme`, the reactivity primitive (`ChangeNotifier`/`Listenable`/streams), or the `Widget` lifecycle — or shipping a bespoke engine (a database when SQLite exists). A bus-factor bomb: when the author steps back, no one can maintain a from-scratch foundation, and it tends to detonate exactly then. A near-empty dependency list is often a *symptom* of this. Functionality can be excellent and this still reads severe/high.
 - **Global static / rejecting the framework's model.** App-wide navigation/DI/theme/locale routed through global singletons; rejecting Flutter's context/`InheritedWidget` model. In class-based Dart, `static` is exceptional — treat unnecessary static as a competence risk **unless** it is one of two legitimate shapes: (1) a **stateless, idempotent, side-effect-free pure function**; or (2) a **single deliberate replacement hook or inherently process-global resource that *exposes* its injection points** (settable) rather than hiding them. The failing kind hides injection that constructor injection should handle, or holds app state that should be instance/scoped.
-- **Utility grab-bag — directly or transitively.** A pile of unrelated helpers with no shared concept; or **depending on one**, especially the author's own personal "utils/helpers" package. The supply-chain risk propagates through the dependency graph, so a clean package that pulls in a junk-drawer inherits it — read the resolved graph from `dart pub deps`, not just the direct list. **But trace propagation only through third-party dependencies the author chose**, and their pinning/hygiene. Platform and first-party packages (the SDKs, and packages from the Dart/Flutter teams' publishers) are outside the author's control; stop at that boundary.
+- **Utility grab-bag — directly or transitively.** A pile of unrelated helpers with no shared concept; or **depending on one**, especially the author's own personal "utils/helpers" package. The supply-chain risk propagates through the dependency graph, so a clean package that pulls in a junk-drawer inherits it — judge it from the dependency inventory, not just the direct list. Platform packages are outside the author's control; stop at that boundary.
 - **Several operations, one return type.** One method returning a union of results from genuinely different operations, the caller discriminating by type to learn what it even did, is a design-judgment signal that makes the whole dependency risky. (Errors stuffed into the return union rather than thrown belong here too.) Contrast the good shape on Axis 1: one operation, several outcomes.
 - **Claim–implementation divergence.** The README promises behavior the code does not deliver, or ships subtly-broken "equivalents" sold as drop-in replacements. If the headline value isn't cashed out by the code, you cannot trust the rest of its claims.
 - **Published archive diverges from the repository.** Files or code in the pub.dev archive that are absent from (or differ from) the repository at the matching tag. Whatever the cause, the code you would run is not the code anyone reviewed in public.

@@ -8,6 +8,8 @@ With a project path: evaluate the version the project would actually resolve —
 
 ## Read order
 
+Start with the dependency inventory and its checkpoint (`SKILL.md`, *Dependency inventory*), then:
+
 1. **`pubspec.yaml`** — SDK constraint, `flutter.plugin.platforms`, dependencies vs. dev_dependencies. Do not count dependencies naively (a near-empty list can be a *symptom* of reimplementing everything).
 2. **`lib/<package>.dart`** and every other file directly under `lib/` — the public export surface. Note what is exported vs. kept in `src/`. Classify the package here (`SKILL.md`, *Classify the package*).
 3. **`lib/src/**`** — follow paths from the exported API inward. Read in full every file that an exported symbol's implementation passes through.
@@ -31,7 +33,7 @@ When `isDiscontinued` is true, name `replacedBy` among the facts bearing on the 
 When several packages solve the same problem, evaluate them together. The pub.dev download-sort already names the popular choice, so a comparison is only worth running to surface what that sort hides.
 
 - **Evaluate each candidate independently** — a full two-axis reading per package, with evidence and its own coverage record. Do **not** let the candidate count dilute per-package depth; the risk reading on each must be as deep as a solo evaluation.
-- **Subagents.** If subagents are available, evaluate each candidate in its own subagent and let the parent assemble the cross-cut. Tell each subagent to read `SKILL.md` and this file (give their absolute paths), and pass it the same context: the project path (or the facts read from it: SDK constraint, existing dependencies, target platforms), the distribution/license constraint, and the trusted-author list — and tell it that Step 0 is already done, so it must not ask the operator anything. Each subagent classifies its own package and returns the single-package format, coverage record included.
+- **Subagents.** If subagents are available, evaluate each candidate in its own subagent and let the parent assemble the cross-cut. Tell each subagent to read `SKILL.md` and this file (give their absolute paths), and pass it the same context: the project path (or the facts read from it: SDK constraint, existing dependencies, target platforms), the distribution/license constraint, and the trusted-author list — and tell it that Step 0 is already done, so it must not ask the operator anything. Each subagent classifies its own package and returns the single-package format, coverage record included. Subagents cannot run the dependency-inventory checkpoint: have each return its inventory first, ask the user once for all candidates, then pass each subagent the packages approved for detailed reading.
 - **Gate status.** For each candidate, note whether the gate fired (`publisherId` matched the operator's trusted list → scrutiny skipped) or not (stands on its source). If none matched, say so — all are judged on code. Gate status is a fact about what was read, not a ranking.
 - **Difference table — relative facts, not a ranking.** Tabulate only the axes that actually differ, cells anchored to facts/`file:line`. **Never** add a "winner" or "recommended" row.
 - **Surface what the download-sort hides.** Name the most-downloaded candidate, and set its highest-strength risk findings and main functionality gaps beside the other candidates' on the same categories — facts side by side, without saying which way they point.
@@ -58,6 +60,10 @@ Publisher: <publisherId or null> · Gate: fired (scrutiny skipped) | not fired (
 
 ## Classification
 Paradigm package | General package — <one line, why it matters here; which source settled it>
+
+## Dependency inventory
+- Platform: <count> · Author's own: <count, names> · Third-party: <count, names; unverified publishers marked> · Already in project: <names>
+- Read in detail (user-approved): <names> | none
 
 ## Functionality & quality
 For each lens:

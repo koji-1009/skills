@@ -14,6 +14,8 @@
         "The package is classified as a paradigm or general package, citing which source settled it",
         "The archive was compared with the package's subdirectory of the monorepo (flutter_svg's repository URL is a browse URL), naming the tag that matched or listing the tags tried",
         "The coverage record lists the search terms used for each risk-sweep category",
+        "Dependencies were resolved through a scratch consumer project, and the inventory sorts every resolved package into platform, author's own, and third-party by publisherId",
+        "Before reading dependencies in detail, the run asks the user which non-platform packages to read, or, with no one to answer, reads none and says so",
         "The output opens with a summary of the highest-strength findings, ordered by strength, without pointing to an exit",
         "The run record states the date, SDK versions, archive_sha256, and repository commit",
         "No command that runs the package's hooks (dart run/test/build, flutter run/test/build) was executed",
