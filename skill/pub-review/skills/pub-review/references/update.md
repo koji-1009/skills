@@ -102,6 +102,7 @@ For each category, new and resolved findings ordered by strength:
 - Changed files read: <files>
 - Unchanged areas not re-read: <dirs>
 - Archive vs. repository (target): <result>
+- Sweep terms per category: <category: terms>
 - Metadata not fetched: <fields, why>
 
 ## Hand-off

@@ -12,7 +12,7 @@ Start with the dependency inventory and its checkpoint (`SKILL.md`, *Dependency 
 
 1. **`pubspec.yaml`** — SDK constraint, `flutter.plugin.platforms`, dependencies vs. dev_dependencies. Do not count dependencies naively (a near-empty list can be a *symptom* of reimplementing everything).
 2. **`lib/<package>.dart`** and every other file directly under `lib/` — the public export surface. Note what is exported vs. kept in `src/`. Classify the package here (`SKILL.md`, *Classify the package*).
-3. **`lib/src/**`** — follow paths from the exported API inward. Read in full every file that an exported symbol's implementation passes through.
+3. **`lib/src/**`** — follow paths from the exported API inward. Read in full every file that an exported symbol's implementation passes through, within the package and its own platform implementations (`SKILL.md` Step 2); where the path enters another dependency, it continues only if the checkpoint approved that dependency.
 4. **Risk sweep** (`SKILL.md`) across its full add-mode scope.
 5. **`test/`** and **`example/`** — what is tested, and how a consumer is expected to use the API.
 6. **`README.md` / `CHANGELOG.md`** — claims to check against the code; release cadence; breaking-change discipline.
@@ -84,6 +84,7 @@ For each category, findings ordered by strength:
 - Read in full: <files>
 - Skimmed: <files>
 - Not read: <directories/files, why>
+- Sweep terms per category: <category: terms>
 - Metadata not fetched: <fields, why>
 
 ## Hand-off
