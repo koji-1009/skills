@@ -9,30 +9,30 @@ The question is not "is this package good" but "what changes if the project move
 - **Current** = the version in the project's `pubspec.lock`, or the version the user stated when no project path was given. When the lock's entry is not hosted (`source: git` or `path`), the current code is that ref or path: read it from there, not from an unpacked archive of the same version number; the version history starts at the version its pubspec states, and the diff is taken against that tree. If it is still unknown, run `SKILL.md` Step 1, report the package status (discontinued and `replacedBy`, retracted versions, advisories on any version), say the diff cannot be computed without the current version, and stop.
 - **Target** = what the user named, else the latest stable.
 
-Unpack both (`SKILL.md` Step 2). The archive-vs-repository comparison applies to the target only — it is the code the project would start running.
+Unpack both (`SKILL.md` Step 2), each with the platform implementations it selects — the current version's as the project's `pubspec.lock` (else a consumer resolution of it) gives them, the target's from its consumer resolution. The archive-vs-repository comparison applies to the target only — it is the code the project would start running.
 
 ## Gate
 
-Run the author gate (`SKILL.md` Step 1) on the `publisherId`. If it fires, the diff reading may be skipped; steps 1, 4, 5, 6 and 9 below are still done, reading what they require: they are what the user needs in order to move. pub.dev exposes one `publisherId`, the package's present one, not one per version; if the identity delta (step 6) shows a change of hands between the two versions, the gate does not fire.
+Run the author gate (`SKILL.md` Step 1) on the `publisherId`. If it fires, steps 1, 5 and 6 are done as written; step 4 is read from the diff of the files directly under `lib/` and the hunks that touch an exported symbol's declaration in `lib/src`, nothing else of the diff; step 9 lists *stops compiling* from step 4 and the requirement changes from the diff of the build and manifest files (`references/adoption.md`, *Large packages*), and records *changes behavior* as *not checked — gate fired*. Steps 2, 3, 7 and 8 are not done. pub.dev exposes one `publisherId`, the package's present one, not one per version; if the identity delta (step 6) shows a change of hands between the two versions, the gate does not fire.
 
 ## Steps
 
 1. **Version history.** List every version between current and target with its `published` date, and flag retracted ones. Report any advisory whose `affected[].versions` include the current version — that makes the upgrade a fix, not just a change — and any that include the target.
-2. **Source diff.** `diff -r` the two unpacked trees. Read every changed file within the risk-sweep scope (`SKILL.md`) in its new form, and every deleted file in its old form. Where a changed line newly calls into unchanged code, read the called code too. Other unchanged areas get no new reading; the coverage record says so. **Large diffs:** `pubspec.yaml`, the changed export files directly under `lib/`, `hook/`, platform directories, and the risk sweep over all changed files remain complete; among changed `lib/src` files, read fully those on paths from changed exported symbols and those with risk-sweep hits, and list the rest as *not read*.
+2. **Source diff.** `diff -r` the two unpacked trees, platform implementations included. *Changed* means added or modified. Read every changed file within the risk-sweep scope (`SKILL.md`) in full in its new form — for a modified file, its old form is the diff hunks — and every deleted file in that scope in full in its old form. Where a hunk's new side names a declaration no hunk touches, read it one level (`SKILL.md`, *Reading terms*). Unchanged files, and files outside the scope, are not read, except that step 9's reach passes through unchanged files skimmed; the coverage record says so. **Large diffs:** when the changed and deleted files in scope are *too large to read in full*, `pubspec.yaml`, the changed files directly under `lib/`, `hook/`, the build and manifest files (`references/adoption.md`, *Large packages*), and the risk sweep over every changed file in scope remain complete; among changed `lib/src` files, read in full those holding a declaration in the reach of a changed exported symbol (one whose declaration lies in a changed file), read the hit context of those with a risk-sweep hit, and list the rest as *not read*.
 3. **Classification.** Classify the target (`SKILL.md`, *Classify the package*). If the diff changes the public export surface, check whether the change introduces or removes a paradigm on it.
 4. **Public API delta.** Removed, renamed, or re-typed exported symbols; changed defaults; changed thrown types — each with `file:line` in the target (or the current version, for removals).
 5. **Dependency delta.** Compare both pubspecs: added, removed, or re-constrained dependencies; SDK lower-bound changes. With a project path, run `dart pub add <package>@<target> --dry-run -C <project>` (or `flutter pub add`; `dev:<package>@<target>` for a dev dependency, which the plain form moves to `dependencies`) to see what else in the project's graph would move, or whether it resolves at all. Build the dependency inventory (`SKILL.md`) for the target and mark what is added or removed relative to the project's `pubspec.lock` (without a project path, relative to a second consumer resolution of the current version); the checkpoint covers the added non-platform packages and the added *Outside pub* dependencies.
-6. **Identity and license delta.** A change of hands is a supply-chain fact to report even when the code looks fine. Sources: the `repository`/`homepage` fields in each version's pubspec (from the versions list in Step 1); the `LICENSE` file in both unpacked trees; and the commit authors and release-tag authors between the two versions. Report the present `publisherId`, and record the publisher at the current version as *not checked — no per-version source* unless the user supplies it.
+6. **Identity and license delta.** A change of hands is a supply-chain fact to report even when the code looks fine. Sources: the `repository`/`homepage` fields in each version's pubspec (from the versions list in Step 1); the `LICENSE` file in both unpacked trees; and the commit count per author between the two tags (deepen the Step 2 clone with `git fetch --unshallow`, then `git shortlog -s <current tag>..<target tag>`) and the taggers — commit messages and diffs are not read. Report the present `publisherId`, and record the publisher at the current version as *not checked — no per-version source* unless the user supplies it.
 7. **Changelog vs. diff.** Check every `CHANGELOG.md` entry between the two versions against the diff. A breaking change in the diff that the changelog omits or labels as minor is a semver-discipline finding; a changelog claim with no corresponding code, or that the code of either version contradicts, is a claim–implementation finding.
 8. **Risk delta.** Run the risk sweep (`SKILL.md`) on the changed files, read the Axis 1 lenses and Axis 2 categories against the diff, and give each category not reported under *Package status* one state:
-   - **new** — the diff introduces it, or a changed line newly calls unchanged code that carries it (evidence in the target);
+   - **new** — the diff introduces it, or a hunk newly names unchanged code that carries it (step 2; evidence in the target);
    - **resolved** — the diff removes it (evidence in the current version);
    - **carried over** — present in both versions on lines the diff rewrote (evidence in the target);
    - **untouched by the diff** — the changed files were searched and contain nothing bearing on it. This says nothing about whether the risk exists in unchanged code;
    - **not checked** — with the reason.
 
    Platform and native requirement changes (new permissions, raised `minSdkVersion` or deployment target, new plist keys, privacy-manifest changes) belong here.
-9. **Project impact.** With a project path, search the project's source for the imports and symbols affected (step 4) and list each call site the upgrade touches with `file:line` in the project — both those that stop compiling and those whose behavior changes (a finding from steps 7–8 on a path the project calls) — and set the requirement changes (step 8) against the project's declared values. Traced by reading, never by compiling; say so.
+9. **Project impact.** With a project path, search the project's source — `lib/`, `bin/`, `test/`, `integration_test/`, in every workspace member or path package that depends on the package — for every import of the package (through a package whose files directly under `lib/` re-export it too) and every symbol the project's code names from it, members accessed on values of package-declared types included. *Stops compiling*: each `path:line` naming a symbol from step 4. *Changes behavior*: each `path:line` naming a symbol whose reach (`SKILL.md`, *Reading terms*) contains the `file:line` of a step 7–8 finding. Set the requirement changes (step 8) against the project's declared values. Traced by reading, never by compiling; say so.
 
 Facts not carried by the diff — `isDiscontinued`/`replacedBy`, a retracted target, maintenance reality, single-maintainer concentration, download base — go under *Package status*, not as deltas; those carrying a strength are counted in the Summary.
 
@@ -73,7 +73,7 @@ Entry: update · Project: <path or "none"> · Targets: <list or unknown> · Dist
 Paths: <alias> = <unpacked package or clone>, …   ← short aliases used in `file:line` below
 
 ## Gate
-Publisher: <publisherId or null> · Gate: fired (diff reading skipped) | not fired
+Publisher: <publisherId or null> · Gate: fired (diff read for steps 4 and 9 only) | not fired
 
 ## Package status (not a delta)
 - Discontinued: <isDiscontinued; replacedBy> · Target retracted: <yes/no>
@@ -121,8 +121,8 @@ Publisher: <publisherId or null> · Gate: fired (diff reading skipped) | not fir
 ## Coverage
 - Changed files read: <files>
 - Changed files not read: <files, why> | none
-- Unchanged code read because a changed line calls it: <files> | none
-- Unchanged areas not re-read: <dirs>
+- Unchanged declarations read one level because a hunk names them: <file:declaration> | none
+- Unchanged areas not re-read: <dirs> · Unchanged files skimmed for step 9's reach: <files> | none
 - Sweep terms per category: <category: terms>
 - Metadata not fetched: <fields, why>
 - Run: <date> · Dart <version> · Flutter <version> · archive_sha256 <hash, one per archive read> · repository <url>@<commit> (tag <matched>; one per archive when they differ)
