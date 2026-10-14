@@ -64,7 +64,7 @@ Paradigm package | General package — <one line, why it matters here; which sou
 
 ## Dependency inventory
 - Platform: <count> · Author's own: <count, names; those read with the package marked> · Third-party: <count, names; unverified publishers marked> · Outside pub: <name version (`file:line`), …> · Already in project: <names>
-- Checkpoint: <question as asked, delegated-core packages marked> | skipped — nothing outside Platform or Outside pub | not asked — <reason>; <the question that would have been asked>
+- Checkpoint: <question as asked, delegated-core packages marked> | skipped — nothing to offer | not asked — <reason>; <the question that would have been asked>
 - Read in detail (user-approved): <names> | none · Outside pub investigated: <names — what was done> | none
 
 ## Functionality & quality

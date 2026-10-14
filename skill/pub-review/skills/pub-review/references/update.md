@@ -80,7 +80,7 @@ Publisher: <publisherId or null> · Gate: fired (diff reading skipped) | not fir
 ## Dependency delta
 - <added/removed/re-constrained>; project graph moves from the dry run | not checked — no project path
 - Inventory change: added <platform / author's own / third-party / outside pub, names> · removed <names>
-- Checkpoint: <question as asked> | skipped — nothing added outside Platform or Outside pub | not asked — <reason>; <the question that would have been asked>
+- Checkpoint: <question as asked> | skipped — nothing added to offer | not asked — <reason>; <the question that would have been asked>
 - Read in detail (user-approved): <names> | none · Outside pub investigated: <names — what was done> | none
 
 ## Identity and license delta
