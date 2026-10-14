@@ -4,7 +4,11 @@ Everything in `SKILL.md` applies.
 
 ## Which version
 
-With a project path: evaluate the version the project would actually resolve — run `dart pub add <package> --dry-run -C <project>` (or `flutter pub add`), which reports the resolution without changing anything. If it does not resolve, report that as the SDK-and-constraint finding and evaluate the latest stable, saying so. Without a project path: the latest stable.
+With a project path: evaluate the version the project would actually resolve — run `dart pub add <package> --dry-run -C <project>` (or `flutter pub add`), which reports the resolution without changing anything. If it does not resolve, report that as the SDK-and-constraint finding and evaluate the latest stable, saying so. Without a project path: the latest stable. The resolution result and the package's requirements (`SKILL.md`, *Platform and native requirements imposed on the app*) against the project's declared values go under *Project fit*.
+
+## Gate
+
+If the author gate (`SKILL.md` Step 1) fires, the reading may stop after read-order steps 1 and 2 below; `SKILL.md` Steps 1 and 2, the dependency inventory without its checkpoint, Classification, and Project fit are still done, and every lens and risk category not settled by them is *not checked — gate fired*.
 
 ## Read order
 
@@ -30,8 +34,8 @@ Start with the import scan, the dependency inventory, and its checkpoint (`SKILL
 
 When several packages solve the same problem, evaluate them together. The pub.dev download-sort already names the popular choice, so a comparison is only worth running to surface what that sort hides.
 
-- **Evaluate each candidate independently** — a full reading per package, as deep as a solo evaluation, with its own coverage record.
-- **Subagents.** If subagents are available, evaluate each candidate in its own subagent and let the parent assemble the cross-cut. Tell each subagent to read `SKILL.md` and this file (give their absolute paths), pass it the Step 0 answers (project path or the facts read from it, constraints, trusted publishers), and tell it that Step 0 is already done, so it must not ask the user anything. Each subagent returns the single-package format, coverage record included. Subagents cannot run the dependency-inventory checkpoint: have each return its inventory first, ask the user once for all candidates, then pass each subagent the packages and *Outside pub* dependencies approved for further reading.
+- **Evaluate each candidate independently** — a full reading per package, as deep as a solo evaluation, with its own coverage record. The dependency-inventory checkpoint is one question covering all candidates.
+- **Subagents.** If subagents are available, evaluate each candidate in its own subagent and let the parent assemble the cross-cut. Tell each subagent to read `SKILL.md` and this file (give their absolute paths), pass it the Step 0 context (project path or the facts read from it, constraints, trusted publishers), and tell it that Step 0 is already done and it must not ask the user anything. Each subagent returns the single-package format, coverage record included. Subagents cannot run the dependency-inventory checkpoint: tell each to stop after the inventory and return it, run the checkpoint, and continue each subagent with the packages and *Outside pub* dependencies approved for further reading.
 - **Gate status.** Per candidate, fired or not; if none fired, say all stand on source.
 - **Difference table.** Only the axes that differ, cells anchored to facts/`file:line`.
 - **Surface what the download-sort hides.** Name the most-downloaded candidate, and set its highest-strength risk findings and main functionality gaps beside the other candidates' on the same categories — facts side by side, without saying which way they point.
@@ -56,7 +60,7 @@ When several packages solve the same problem, evaluate them together. The pub.de
 - Requirements imposed on the app — SDK and Flutter floors, platform minimums, permissions and manifest or plist entries, toolchain: <requirement, `file:line`> — <the project's declared value | not declared in the project | not checked — no project path>
 
 ## Context
-Entry: add · Project: <path or "none (fresh addition)"> · Targets: <list or unknown> · Distribution/license constraint: <given or none> · Defaulted: <Step 0 items not answered>
+Entry: add · Project: <path or "none (fresh addition)"> · Targets: <list or unknown> · Distribution/license constraint: <given or none> · Defaulted: <Step 0 items the request left open>
 Paths: <alias> = <unpacked package or clone>, …   ← short aliases used in `file:line` below
 
 ## Gate
