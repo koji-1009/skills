@@ -34,7 +34,7 @@ claude plugin update pub-review@koji-1009-skills
 
 ### Codex (plugin)
 
-Codex reads the same marketplace:
+Codex reads the same marketplace, through `.agents/plugins/marketplace.json` (a symlink to `.claude-plugin/marketplace.json`):
 
 ```bash
 codex plugin marketplace add koji-1009/skills
