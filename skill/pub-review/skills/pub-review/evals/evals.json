@@ -20,7 +20,7 @@
         "The run record states the date, SDK versions, archive_sha256, and repository commit",
         "No command that builds, runs, tests, analyzes, or generates code in the unpacked package or the consumer project was executed",
         "A tensions section names where the functionality and risk readings diverge, or states that they do not",
-        "Strength is expressed on the four-level scale (severe, high, moderate, low) or a direct translation of it",
+        "Strength is expressed on the five-level scale (max, xhigh, high, medium, low) or a direct translation of it",
         "The output contains a coverage section listing files read and not read",
         "The output contains no recommendation, winner, score, or chosen exit",
         "Likes, pub points, or download counts are not used as a criterion"
@@ -51,7 +51,7 @@
         "Intermediate versions are listed with their published dates",
         "Removed or changed exported symbols are listed with file:line in the package source",
         "CHANGELOG entries between the two versions are checked against the diff",
-        "Each risk category is labeled new, resolved, untouched by the diff, or not checked (or direct translations)",
+        "Each risk category is accounted for: findings labeled new, resolved, or carried over, and every other category listed as untouched by the diff or not checked (or direct translations)",
         "Project call sites and the dependency dry run are marked not checked because no project path was given",
         "The summary states that risks in unchanged code are not assessed by this reading",
         "The exits offered are upgrade, stay pinned, and leave the package (or direct translations), and none is chosen"

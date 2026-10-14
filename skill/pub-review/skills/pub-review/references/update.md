@@ -20,17 +20,18 @@ Run the author gate (`SKILL.md` Step 1) on the `publisherId`. If it fires, the d
 1. **Version history.** List every version between current and target with its `published` date, and flag retracted ones. Report any advisory whose `affected[].versions` include the current version — that makes the upgrade a fix, not just a change — and any that include the target. Report package-level status — `isDiscontinued`/`replacedBy`, whether the target is retracted, `publisherId` — as facts in their own section, not as deltas.
 2. **Source diff.** `diff -r` the two unpacked trees. Read every changed file within the risk-sweep scope (`SKILL.md`) in its new form, and every deleted file in its old form. Where a changed line newly calls into unchanged code, read the called code too. Unchanged areas get no new reading; the coverage record says so. **Large diffs:** `pubspec.yaml`, the changed export files directly under `lib/`, `hook/`, platform directories, and the risk sweep over all changed files remain complete; among changed `lib/src` files, read fully those on paths from changed exported symbols and those with risk-sweep hits, and list the rest as *not read*.
 3. **Classification.** Classify the target (`SKILL.md`, *Classify the package*). If the diff changes the public export surface, check whether the change introduces or removes a paradigm on it.
-4. **Public API delta.** Removed, renamed, or re-typed exported symbols; changed defaults; changed thrown types — each with `file:line` in the target (or the current version, for removals). With a project path, search the project's own source for the imports and symbols affected and list each call site the upgrade touches with `file:line` in the project. Without one, record *project impact: not checked — no project path*.
+4. **Public API delta.** Removed, renamed, or re-typed exported symbols; changed defaults; changed thrown types — each with `file:line` in the target (or the current version, for removals). With a project path, search the project's own source for the imports and symbols affected and list each call site the upgrade touches with `file:line` in the project — both those that stop compiling and those whose behavior changes (a finding from steps 7–8 that lies on a path the project calls). The impact is traced by reading, never by compiling; say so. Without a project path, record *project impact: not checked — no project path*.
 5. **Dependency delta.** Compare both pubspecs: added, removed, or re-constrained dependencies; SDK lower-bound changes. With a project path, run `dart pub add <package>@<target> --dry-run -C <project>` (or `flutter pub add`) to see what else in the project's graph would move, or whether it resolves at all. Without one, record the dry run as *not checked — no project path*. Build the dependency inventory (`SKILL.md`) for the target and mark what is added or removed relative to the current version; the checkpoint covers the added non-platform packages and the added *Outside pub* dependencies.
 6. **Identity and license delta.** A change of hands is a supply-chain fact to report even when the code looks fine. Sources: the `repository`/`homepage` fields in each version's pubspec (from the versions list in Step 1); the `LICENSE` file in both unpacked trees; and, with `gh`, the commit authors and release-tag authors between the two tags. The pub.dev API gives only the *current* `publisherId`, not a per-version one: report it, and record the publisher at the current version as *not checked — no per-version source* unless the operator supplies it.
 7. **Changelog vs. diff.** Check every `CHANGELOG.md` entry between the two versions against the diff. A breaking change in the diff that the changelog omits or labels as minor is a semver-discipline finding; a changelog claim with no corresponding code is a claim–implementation finding.
 8. **Risk delta.** Run the risk sweep (`SKILL.md`) on the changed files, read the Axis 1 lenses and Axis 2 categories against the diff, and give each category one state:
    - **new** — the diff introduces it (evidence in the target);
    - **resolved** — the diff removes it (evidence in the current version);
+   - **carried over** — present in both versions on lines the diff rewrote (evidence in the target);
    - **untouched by the diff** — the changed files were searched and contain nothing bearing on it. This says nothing about whether the risk exists in unchanged code;
    - **not checked** — with the reason.
 
-   Platform and native requirement changes (new permissions, raised `minSdkVersion` or deployment target, new plist keys, privacy-manifest changes) belong here.
+   Platform and native requirement changes (new permissions, raised `minSdkVersion` or deployment target, new plist keys, privacy-manifest changes) belong here. Categories not carried by code — maintenance reality, single-maintainer concentration, download base — have no delta: report them as facts about the target under *Package status*.
 
 If no prior reading of the current version exists, do not evaluate it in full; evaluate the diff, and list the current version's unread areas in the coverage record. "Untouched by the diff" is never to be read as "clean".
 
@@ -52,10 +53,19 @@ When `isDiscontinued` is true, name `replacedBy` among the facts bearing on the 
 # Update: <package> <current> → <target>
 
 ## Summary
-- <strength> — <new or resolved finding, one line> (`file:line` / field)   ← the findings at the highest strength level present, one line each; lower levels stay in Risk delta
+- Resolves: yes, moving <packages> | no — <conflict> | not checked — no project path
+- Project impact: <n> call sites stop compiling, <n> change behavior (traced, not compiled) | not checked — no project path
+- <strength> — <new, resolved, or carried-over finding, one line> (`file:line` / field)   ← the findings at the highest strength level present, one line each; lower levels stay in Risk delta
 - Not checked: <lens or category that matters most> — <reason>
 - Tension: <main tension, one line>
 - Scope: this reading covers the diff only; risks in unchanged code are not assessed here.
+
+## Project impact
+Traced by reading the project's source, not by compiling it.
+- Stops compiling: <symbol, `file:line` in the target> — `path:line` in the project, … | none
+- Changes behavior: <finding, `file:line` in the target> — `path:line` in the project, … | none
+- Requirements vs. the project: <SDK and Flutter floors, platform minimums, toolchain> — <the project's declared value, or not checked — not declared in the project>
+(Without a project path: not checked — no project path.)
 
 ## Context
 Entry: update · Project: <path or "none"> · Targets: <list or unknown> · Distribution/license constraint: <given or none> · Defaulted: <Step 0 items not answered>
@@ -66,6 +76,7 @@ Publisher: <publisherId or null> · Gate: fired (diff reading skipped) | not fir
 
 ## Package status (not a delta)
 - Discontinued: <isDiscontinued; replacedBy> · Target retracted: <yes/no> · Verified publisher: <publisherId or null>
+- Maintenance, maintainers, download base: <facts about the target, with strength where the category carries one>
 
 ## Version history
 - <version — published date — retracted?>
@@ -74,8 +85,8 @@ Publisher: <publisherId or null> · Gate: fired (diff reading skipped) | not fir
 ## Classification
 <target's classification; any paradigm change on the export surface>
 
-## Public API delta and project impact
-- <removed/changed symbol, `file:line`> — project call sites: `path:line`, … | not checked — no project path
+## Public API delta
+- <removed/renamed/re-typed symbol, changed default or thrown type, `file:line`> | none
 
 ## Dependency delta
 - <added/removed/re-constrained>; project graph moves from the dry run | not checked — no project path
@@ -87,13 +98,16 @@ Publisher: <publisherId or null> · Gate: fired (diff reading skipped) | not fir
 - <publisher/repo/maintainer/license changes> | none
 
 ## Functionality & quality delta
-- **<lens>**: <what changed, `file:line`> | untouched by the diff | not checked (<reason>)
+- **<lens>**: <what changed, `file:line`>
+- Untouched by the diff: <lenses> · Not checked: <lens — reason>, …
 
 ## Risk delta
-For each category, new and resolved findings ordered by strength, each with its own strength:
-- **<category>** — new | resolved | untouched by the diff | not checked
-  - <new | resolved> · <strength: severe | high | moderate | low> — <finding>
-    - evidence, why it bites, bites hardest when
+Findings across all categories, ordered by strength:
+- <strength: max | xhigh | high | medium | low> · <category> · <new | resolved | carried over> — <finding>
+  - evidence, why it bites, bites hardest when
+
+- Untouched by the diff: <categories>
+- Not checked: <category — reason>, …
 
 ## Changelog vs. diff
 - <omissions, mislabeled breaking changes, unbacked claims> | consistent

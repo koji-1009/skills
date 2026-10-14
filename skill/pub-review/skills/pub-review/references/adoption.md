@@ -48,6 +48,7 @@ When several packages solve the same problem, evaluate them together. The pub.de
 # Evaluation: <package> <version>
 
 ## Summary
+- Project fit: resolves <yes | no — conflict>; requirements vs. the project <fit | the gap> | not checked — no project path
 - <strength> — <finding, one line> (`file:line` / field)   ← the findings at the highest strength level present, one line each; lower levels stay in Risk
 - Not checked: <lens or category that matters most> — <reason>
 - Tension: <main tension, one line>
@@ -68,17 +69,18 @@ Paradigm package | General package — <one line, why it matters here; which sou
 - Read in detail (user-approved): <names> | none · Outside pub investigated: <names — what was done> | none
 
 ## Functionality & quality
-For each lens:
-- **<lens>**: <finding with `file:line`> | checked — none (<what was read>) | not checked (<reason>)
+- **<lens>**: <finding with `file:line`>
+- Checked — none: <lens (what was read)>, … · Not checked: <lens — reason>, …
 
 ## Risk
-For each category, findings ordered by strength; a category with several findings lists each with its own strength:
-- **<category>**
-  - <strength: severe | high | moderate | low> — <finding>
-    - evidence: `file:line` / construct / metadata field
-    - why it bites: <one or two lines>
-    - bites hardest when: <project condition>
-- **<category>** — checked — none (<what was searched>) | not checked (<reason>)
+Findings across all categories, ordered by strength:
+- <strength: max | xhigh | high | medium | low> · <category> — <finding>
+  - evidence: `file:line` / construct / metadata field
+  - why it bites: <one or two lines>
+  - bites hardest when: <project condition>
+
+- Checked — none: <category (what was searched)>, …
+- Not checked: <category — reason>, …
 - **License** — <package license; dependency and vendored licenses> — facts only when no constraint was given; otherwise the strength against the constraint
 - **Download base** — <weak signal, one line; no strength>
 
