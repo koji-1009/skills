@@ -3,17 +3,12 @@
   "owner": {
     "name": "koji-1009"
   },
-  "description": "Agent skills by koji-1009: pub-review for source-level review of Flutter/Dart dependencies.",
+  "description": "Agent skills by koji-1009: pub-review and pub-upgrade-check for source-level review of Flutter/Dart dependencies.",
   "plugins": [
     {
       "name": "pub-review",
       "source": "./skill/pub-review",
-      "description": "Source-level review of pub.dev (Flutter/Dart) dependencies: pub-review reads a package or an upgrade in full (functionality/quality and risk, anchored to file:line, no verdict); pub-upgrade-check checks routinely whether an upgrade affects the app.",
-      "author": {
-        "name": "koji-1009"
-      },
-      "repository": "https://github.com/koji-1009/skills",
-      "license": "MIT"
+      "description": "Source-level review of pub.dev (Flutter/Dart) dependencies: pub-review reads a package or an upgrade in full (functionality/quality and risk, anchored to file:line, no verdict); pub-upgrade-check checks routinely whether an upgrade affects the app."
     }
   ]
 }
