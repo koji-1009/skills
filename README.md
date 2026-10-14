@@ -4,13 +4,13 @@ Agent skills by koji-1009.
 
 ## Skills
 
-[**pub-review**](skill/pub-review/skills/pub-review/SKILL.md) — Source-level review of a pub.dev (Flutter/Dart) dependency. Two entry points: add (vet one package, or compare candidates, before depending on it) and update (vet moving an existing dependency from its locked version to a target by reading the diff). Produces two independent readings — functionality/quality and risk — anchored to `file:line`, with a coverage record, and hands the decision to the user without a verdict.
+[**skill/pub-review.md**](skill/pub-review/skills/pub-review/SKILL.md) — Source-level review of a pub.dev (Flutter/Dart) dependency. Two entry points: add (vet one package, or compare candidates, before depending on it) and update (review in full a move from the locked version to a target by reading the whole diff). Produces two independent readings — functionality/quality and risk — anchored to `file:line`, with a coverage record, and hands the decision to the user without a verdict.
 
 The skill is a directory: `SKILL.md` holds the shared core and routes to `references/adoption.md` or `references/update.md`. Install all three files together.
 
-[**pub-upgrade-check**](skill/pub-review/skills/pub-upgrade-check/SKILL.md) — Routine check of whether an app is affected by upgrading its pub.dev dependencies. Reads the package diff only where the app reaches it — used symbols, behavior on called paths, requirements, advisories — and flags supply-chain changes that call for a full pub-review. A single `SKILL.md`; needs a project path.
+[**skill/pub-upgrade-check.md**](skill/pub-review/skills/pub-upgrade-check/SKILL.md) — Routine check of whether an app is affected by upgrading its pub.dev dependencies. Reads the package diff only where the app reaches it — used symbols, behavior on called paths, requirements, advisories — and flags supply-chain changes that call for a full pub-review. A single `SKILL.md`; needs a project path.
 
-Both skills ship in the `pub-review` plugin.
+Both skills ship in the `pub-review` plugin, which Claude Code and Codex both read. Each skill has one file, `skill/pub-review/skills/<name>/SKILL.md`; `skill/pub-review.md` and `skill/pub-upgrade-check.md` are symlinks to it.
 
 ## Setup
 
