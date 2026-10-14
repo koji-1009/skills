@@ -59,7 +59,7 @@ When `isDiscontinued` is true, name `replacedBy` among the facts bearing on the 
 
 ## Context
 Entry: update · Project: <path or "none"> · Targets: <list or unknown> · Distribution/license constraint: <given or none> · Defaulted: <Step 0 items not answered>
-Run: <date> · Dart <version> · Flutter <version> · archive_sha256 <current> / <target> (plus one per own implementation read) · repository <url>@<commit> (tag <matched>)
+Run: <date> · Dart <version> · Flutter <version> · archive_sha256 <current> / <target> (plus one per own implementation read) · repository <url>@<commit> (tag <matched>; one per archive when they differ)
 
 ## Gate
 Publisher: <publisherId or null> · Gate: fired (diff reading skipped) | not fired
@@ -80,7 +80,7 @@ Publisher: <publisherId or null> · Gate: fired (diff reading skipped) | not fir
 ## Dependency delta
 - <added/removed/re-constrained>; project graph moves from the dry run | not checked — no project path
 - Inventory change: added <platform / author's own / third-party / outside pub, names> · removed <names>
-- Checkpoint: <question as asked> | skipped — nothing added outside Platform or Outside pub | not asked — <reason>
+- Checkpoint: <question as asked> | skipped — nothing added outside Platform or Outside pub | not asked — <reason>; <the question that would have been asked>
 - Read in detail (user-approved): <names> | none · Outside pub investigated: <names — what was done> | none
 
 ## Identity and license delta

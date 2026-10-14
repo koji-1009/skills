@@ -54,7 +54,7 @@ When several packages solve the same problem, evaluate them together. The pub.de
 
 ## Context
 Entry: add · Project: <path or "none (fresh addition)"> · Targets: <list or unknown> · Distribution/license constraint: <given or none> · Defaulted: <Step 0 items not answered>
-Run: <date> · Dart <version> · Flutter <version> · archive_sha256 <hash, one per archive read> · repository <url>@<commit> (tag <matched>)
+Run: <date> · Dart <version> · Flutter <version> · archive_sha256 <hash, one per archive read> · repository <url>@<commit> (tag <matched>; one per archive when they differ)
 
 ## Gate
 Publisher: <publisherId or null> · Gate: fired (scrutiny skipped) | not fired (read the source)
@@ -63,8 +63,8 @@ Publisher: <publisherId or null> · Gate: fired (scrutiny skipped) | not fired (
 Paradigm package | General package — <one line, why it matters here; which source settled it>
 
 ## Dependency inventory
-- Platform: <count> · Author's own: <count, names> · Third-party: <count, names; unverified publishers marked> · Outside pub: <name version (`file:line`), …> · Already in project: <names>
-- Checkpoint: <question as asked, delegated-core packages marked> | skipped — nothing outside Platform or Outside pub | not asked — <reason>
+- Platform: <count> · Author's own: <count, names; those read with the package marked> · Third-party: <count, names; unverified publishers marked> · Outside pub: <name version (`file:line`), …> · Already in project: <names>
+- Checkpoint: <question as asked, delegated-core packages marked> | skipped — nothing outside Platform or Outside pub | not asked — <reason>; <the question that would have been asked>
 - Read in detail (user-approved): <names> | none · Outside pub investigated: <names — what was done> | none
 
 ## Functionality & quality
