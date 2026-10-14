@@ -8,18 +8,22 @@ Agent skills by koji-1009.
 
 The skill is a directory: `SKILL.md` holds the shared core and routes to `references/adoption.md` or `references/update.md`. Install all three files together.
 
+[**pub-upgrade-check**](skill/pub-review/skills/pub-upgrade-check/SKILL.md) — Routine check of whether an app is affected by upgrading its pub.dev dependencies. Reads the package diff only where the app reaches it — used symbols, behavior on called paths, requirements, advisories — and flags supply-chain changes that call for a full pub-review. A single `SKILL.md`; needs a project path.
+
+Both skills ship in the `pub-review` plugin.
+
 ## Setup
 
 ### Claude Code (plugin)
 
-This repository is a Claude Code plugin marketplace. Add it, then install pub-review:
+This repository is a Claude Code plugin marketplace. Add it, then install the pub-review plugin:
 
 ```bash
 claude plugin marketplace add koji-1009/skills
 claude plugin install pub-review@koji-1009-skills
 ```
 
-Plugins install at user scope by default; pass `--scope project` or `--scope local` to change it. The skill is invoked as `/pub-review:pub-review`, and also loads automatically when a request matches its description.
+Plugins install at user scope by default; pass `--scope project` or `--scope local` to change it. The skills are invoked as `/pub-review:pub-review` and `/pub-review:pub-upgrade-check`, and also load automatically when a request matches their descriptions.
 
 Auto-update is off by default for third-party marketplaces. Enable it under `/plugin` → Marketplaces, or update manually:
 
@@ -46,15 +50,17 @@ mkdir -p .claude/skills/pub-review/references
 curl -o .claude/skills/pub-review/SKILL.md https://raw.githubusercontent.com/koji-1009/skills/main/skill/pub-review/skills/pub-review/SKILL.md
 curl -o .claude/skills/pub-review/references/adoption.md https://raw.githubusercontent.com/koji-1009/skills/main/skill/pub-review/skills/pub-review/references/adoption.md
 curl -o .claude/skills/pub-review/references/update.md https://raw.githubusercontent.com/koji-1009/skills/main/skill/pub-review/skills/pub-review/references/update.md
+mkdir -p .claude/skills/pub-upgrade-check
+curl -o .claude/skills/pub-upgrade-check/SKILL.md https://raw.githubusercontent.com/koji-1009/skills/main/skill/pub-review/skills/pub-upgrade-check/SKILL.md
 ```
 
 ### Claude Code (global)
 
-Same as above with `~/.claude/skills/pub-review` as the destination.
+Same as above with `~/.claude/skills/` as the base directory.
 
 ### Codex (project / global)
 
-Same as above with `.agents/skills/pub-review` (project) or `~/.agents/skills/pub-review` (global) as the destination.
+Same as above with `.agents/skills/` (project) or `~/.agents/skills/` (global) as the base directory.
 
 ## License
 

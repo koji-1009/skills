@@ -8,7 +8,7 @@
     {
       "name": "pub-review",
       "source": "./skill/pub-review",
-      "description": "Source-level review of a pub.dev (Flutter/Dart) dependency before adding or upgrading it — two independent readings, functionality/quality and risk, anchored to file:line, handed over without a verdict."
+      "description": "Source-level review of pub.dev (Flutter/Dart) dependencies: pub-review reads a package or an upgrade in full (functionality/quality and risk, anchored to file:line, no verdict); pub-upgrade-check checks routinely whether an upgrade affects the app."
     }
   ]
 }

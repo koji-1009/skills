@@ -1,0 +1,16 @@
+{
+  "skill_name": "pub-upgrade-check",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Dependabot wants to bump http from 0.13.6 to 1.6.0. Does that affect my app?",
+      "expected_output": "Without a project path there is nothing to check against: the skill says a project path is required and stops, without unpacking or diffing anything.",
+      "files": [],
+      "expectations": [
+        "States that a project path is required for this check",
+        "Does not unpack, diff, or report impact without a project",
+        "Does not claim the upgrade is safe or unsafe"
+      ]
+    }
+  ]
+}

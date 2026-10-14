@@ -41,7 +41,7 @@
     },
     {
       "id": 3,
-      "prompt": "Our project is on http 0.13.6. Check whether it's OK to move to the latest 1.x.",
+      "prompt": "Our project is on http 0.13.6. Review in full what changes if we move to the latest 1.x.",
       "expected_output": "An update reading of the diff from http 0.13.6 to the latest 1.x without a project path: version history, advisories, public API delta, dependency delta, changelog-vs-diff check, risk delta, and upgrade / stay pinned / leave the package exits without a choice. Project-dependent checks are marked not checked.",
       "files": [],
       "expectations": [
@@ -71,7 +71,7 @@
     },
     {
       "id": 5,
-      "prompt": "Dependabot opened a PR bumping flutter_markdown in our app. Should I merge it?",
+      "prompt": "Dependabot opened a PR bumping flutter_markdown in our app. Review the upgrade in full before I merge it.",
       "expected_output": "The skill triggers on a dependabot phrasing and takes the update entry point; with no current version available it reports the package status — flutter_markdown is discontinued, replacedBy flutter_markdown_plus — and stops without choosing an exit.",
       "files": [],
       "expectations": [
