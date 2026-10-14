@@ -8,7 +8,12 @@
     {
       "name": "pub-review",
       "source": "./skill/pub-review",
-      "description": "Source-level review of pub.dev (Flutter/Dart) dependencies: pub-review reads a package or an upgrade in full (functionality/quality and risk, anchored to file:line, no verdict); pub-upgrade-check checks routinely whether an upgrade affects the app."
+      "description": "Source-level review of pub.dev (Flutter/Dart) dependencies: pub-review reads a package or an upgrade in full (functionality/quality and risk, anchored to file:line, no verdict); pub-upgrade-check checks routinely whether an upgrade affects the app.",
+      "author": {
+        "name": "koji-1009"
+      },
+      "repository": "https://github.com/koji-1009/skills",
+      "license": "MIT"
     }
   ]
 }
