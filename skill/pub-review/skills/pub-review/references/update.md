@@ -1,28 +1,28 @@
 # Update — evaluating a move to a newer version
 
-Read after `SKILL.md` Step 0. Everything in `SKILL.md` applies; this file adds the update-specific steps, exits, and output format.
+Everything in `SKILL.md` applies.
 
 The question is not "is this package good" but "what changes if the project moves from the current version to the target". Read the **diff**, through both axes.
 
 ## Versions
 
-- **Current** = the version in the project's `pubspec.lock`, or the version the operator stated when no project path was given.
-- **Target** = what the operator named, else the latest stable.
+- **Current** = the version in the project's `pubspec.lock`, or the version the user stated when no project path was given. If it is still unknown, run `SKILL.md` Step 1, report the package status (discontinued and `replacedBy`, retracted versions, advisories on any version), say the diff cannot be computed without the current version, and stop.
+- **Target** = what the user named, else the latest stable.
 
 Unpack both (`SKILL.md` Step 2). The archive-vs-repository comparison applies to the target only — it is the code the project would start running.
 
 ## Gate
 
-Run the author gate (`SKILL.md` Step 1) on the `publisherId`. If it fires, the diff reading may be skipped; steps 1, 4, 5 and 6 below are still reported, because they are metadata and project facts the user needs to move. pub.dev exposes only the current `publisherId`, so the gate cannot show who published the target; if the identity delta (step 6) shows a change of hands between the two versions, the gate does not fire.
+Run the author gate (`SKILL.md` Step 1) on the `publisherId`. If it fires, the diff reading may be skipped; steps 1, 4, 5, 6 and 9 below are still done: they are what the user needs in order to move, and need no reading below the export surface. pub.dev exposes one `publisherId`, the package's present one, not one per version; if the identity delta (step 6) shows a change of hands between the two versions, the gate does not fire.
 
 ## Steps
 
-1. **Version history.** List every version between current and target with its `published` date, and flag retracted ones. Report any advisory whose `affected[].versions` include the current version — that makes the upgrade a fix, not just a change — and any that include the target. Report package-level status — `isDiscontinued`/`replacedBy`, whether the target is retracted, `publisherId` — as facts in their own section, not as deltas.
+1. **Version history.** List every version between current and target with its `published` date, and flag retracted ones. Report any advisory whose `affected[].versions` include the current version — that makes the upgrade a fix, not just a change — and any that include the target.
 2. **Source diff.** `diff -r` the two unpacked trees. Read every changed file within the risk-sweep scope (`SKILL.md`) in its new form, and every deleted file in its old form. Where a changed line newly calls into unchanged code, read the called code too. Unchanged areas get no new reading; the coverage record says so. **Large diffs:** `pubspec.yaml`, the changed export files directly under `lib/`, `hook/`, platform directories, and the risk sweep over all changed files remain complete; among changed `lib/src` files, read fully those on paths from changed exported symbols and those with risk-sweep hits, and list the rest as *not read*.
 3. **Classification.** Classify the target (`SKILL.md`, *Classify the package*). If the diff changes the public export surface, check whether the change introduces or removes a paradigm on it.
-4. **Public API delta.** Removed, renamed, or re-typed exported symbols; changed defaults; changed thrown types — each with `file:line` in the target (or the current version, for removals). With a project path, search the project's own source for the imports and symbols affected and list each call site the upgrade touches with `file:line` in the project — both those that stop compiling and those whose behavior changes (a finding from steps 7–8 that lies on a path the project calls). The impact is traced by reading, never by compiling; say so. Finish this step last, since it draws on steps 7–8. Without a project path, record *project impact: not checked — no project path*.
-5. **Dependency delta.** Compare both pubspecs: added, removed, or re-constrained dependencies; SDK lower-bound changes. With a project path, run `dart pub add <package>@<target> --dry-run -C <project>` (or `flutter pub add`) to see what else in the project's graph would move, or whether it resolves at all. Without one, record the dry run as *not checked — no project path*. Build the dependency inventory (`SKILL.md`) for the target and mark what is added or removed relative to the project's `pubspec.lock` (without a project path, relative to the current version's own dependencies); the checkpoint covers the added non-platform packages and the added *Outside pub* dependencies.
-6. **Identity and license delta.** A change of hands is a supply-chain fact to report even when the code looks fine. Sources: the `repository`/`homepage` fields in each version's pubspec (from the versions list in Step 1); the `LICENSE` file in both unpacked trees; and, with `gh`, the commit authors and release-tag authors between the two tags. The pub.dev API gives only the *current* `publisherId`, not a per-version one: report it, and record the publisher at the current version as *not checked — no per-version source* unless the operator supplies it.
+4. **Public API delta.** Removed, renamed, or re-typed exported symbols; changed defaults; changed thrown types — each with `file:line` in the target (or the current version, for removals).
+5. **Dependency delta.** Compare both pubspecs: added, removed, or re-constrained dependencies; SDK lower-bound changes. With a project path, run `dart pub add <package>@<target> --dry-run -C <project>` (or `flutter pub add`) to see what else in the project's graph would move, or whether it resolves at all. Build the dependency inventory (`SKILL.md`) for the target and mark what is added or removed relative to the project's `pubspec.lock` (without a project path, relative to the current version's own dependencies); the checkpoint covers the added non-platform packages and the added *Outside pub* dependencies.
+6. **Identity and license delta.** A change of hands is a supply-chain fact to report even when the code looks fine. Sources: the `repository`/`homepage` fields in each version's pubspec (from the versions list in Step 1); the `LICENSE` file in both unpacked trees; and the commit authors and release-tag authors between the two versions. Report the present `publisherId`, and record the publisher at the current version as *not checked — no per-version source* unless the user supplies it.
 7. **Changelog vs. diff.** Check every `CHANGELOG.md` entry between the two versions against the diff. A breaking change in the diff that the changelog omits or labels as minor is a semver-discipline finding; a changelog claim with no corresponding code is a claim–implementation finding.
 8. **Risk delta.** Run the risk sweep (`SKILL.md`) on the changed files, read the Axis 1 lenses and Axis 2 categories against the diff, and give each category one state:
    - **new** — the diff introduces it (evidence in the target);
@@ -31,9 +31,10 @@ Run the author gate (`SKILL.md` Step 1) on the `publisherId`. If it fires, the d
    - **untouched by the diff** — the changed files were searched and contain nothing bearing on it. This says nothing about whether the risk exists in unchanged code;
    - **not checked** — with the reason.
 
-   Platform and native requirement changes (new permissions, raised `minSdkVersion` or deployment target, new plist keys, privacy-manifest changes) belong here. Categories not carried by code — maintenance reality, single-maintainer concentration, download base — have no delta: report them as facts about the target under *Package status*.
+   Platform and native requirement changes (new permissions, raised `minSdkVersion` or deployment target, new plist keys, privacy-manifest changes) belong here.
+9. **Project impact.** With a project path, search the project's source for the imports and symbols affected (step 4) and list each call site the upgrade touches with `file:line` in the project — both those that stop compiling and those whose behavior changes (a finding from steps 7–8 on a path the project calls). Traced by reading, never by compiling; say so.
 
-If no prior reading of the current version exists, do not evaluate it in full; evaluate the diff, and list the current version's unread areas in the coverage record. "Untouched by the diff" is never to be read as "clean".
+Facts not carried by the diff — `isDiscontinued`/`replacedBy`, a retracted target, maintenance reality, single-maintainer concentration, download base — go under *Package status*, not as deltas.
 
 ## Tensions (in addition to `SKILL.md`)
 
@@ -44,8 +45,6 @@ If no prior reading of the current version exists, do not evaluate it in full; e
 - **Upgrade** — move to the target; the touched call sites and dependency moves are the work.
 - **Stay pinned** — remain on the current version; the advisories, discontinuation, or SDK drift that accumulate there are the cost.
 - **Leave the package** — move to `replacedBy`, another package (an add evaluation, `references/adoption.md`), or hold it yourself.
-
-When `isDiscontinued` is true, name `replacedBy` among the facts bearing on the exits.
 
 ## Output format
 
@@ -66,7 +65,7 @@ When `isDiscontinued` is true, name `replacedBy` among the facts bearing on the 
 Traced by reading the project's source, not by compiling it.
 - Stops compiling: <symbol, `file:line` in the target> — `path:line` in the project, … | none
 - Changes behavior: <finding, `file:line` in the target> — `path:line` in the project, … | none
-- Requirements vs. the project: <SDK and Flutter floors, platform minimums, toolchain> — <the project's declared value, or not checked — not declared in the project>
+- Requirements vs. the project: <SDK and Flutter floors, platform minimums, toolchain> — <the project's declared value | not declared in the project>
 (Without a project path: not checked — no project path.)
 
 ## Context
@@ -77,12 +76,11 @@ Paths: <alias> = <unpacked package or clone>, …   ← short aliases used in `f
 Publisher: <publisherId or null> · Gate: fired (diff reading skipped) | not fired
 
 ## Package status (not a delta)
-- Discontinued: <isDiscontinued; replacedBy> · Target retracted: <yes/no> · Verified publisher: <publisherId or null>
+- Discontinued: <isDiscontinued; replacedBy> · Target retracted: <yes/no>
 - Maintenance, maintainers, download base: <facts about the target, with strength where the category carries one>
 
 ## Version history
 - <version — published date — retracted?>
-- Advisories on current: <id, affected, fixed in> | none · on target: <…> | none
 
 ## Classification
 <target's classification; any paradigm change on the export surface>
@@ -110,7 +108,7 @@ Publisher: <publisherId or null> · Gate: fired (diff reading skipped) | not fir
 ### <level>   ← medium and low: one line per finding
 - **<category>** · <new | resolved | carried over> [<platforms, when not all>] — <finding> (`file:line` / field)
 
-### Not found
+### No finding
 - Untouched by the diff: <categories>
 - Not checked: <category — reason>, …
 
@@ -123,10 +121,9 @@ Publisher: <publisherId or null> · Gate: fired (diff reading skipped) | not fir
 ## Coverage
 - Changed files read: <files>
 - Unchanged areas not re-read: <dirs>
-- Archive vs. repository (target): <result>
 - Sweep terms per category: <category: terms>
 - Metadata not fetched: <fields, why>
-- Run: <date> · Dart <version> · Flutter <version> · archive_sha256 <current> / <target> (plus one per own implementation read) · repository <url>@<commit> (tag <matched>; one per archive when they differ)
+- Run: <date> · Dart <version> · Flutter <version> · archive_sha256 <hash, one per archive read> · repository <url>@<commit> (tag <matched>; one per archive when they differ)
 
 ## Hand-off
 - Exits: upgrade | stay pinned | leave the package — with the facts bearing on each.

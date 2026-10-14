@@ -1,6 +1,6 @@
 # Add — evaluating a package before depending on it
 
-Read after `SKILL.md` Step 0. Everything in `SKILL.md` applies; this file adds the add-specific steps, exits, and output formats.
+Everything in `SKILL.md` applies.
 
 ## Which version
 
@@ -10,35 +10,32 @@ With a project path: evaluate the version the project would actually resolve —
 
 Start with the import scan, the dependency inventory, and its checkpoint (`SKILL.md`, *Dependency inventory*), then:
 
-1. **`pubspec.yaml`** — SDK constraint, `flutter.plugin.platforms`, dependencies vs. dev_dependencies. Do not count dependencies naively (a near-empty list can be a *symptom* of reimplementing everything).
+1. **`pubspec.yaml`** — SDK constraint, `flutter.plugin.platforms`, dependencies vs. dev_dependencies.
 2. **`lib/<package>.dart`** and every other file directly under `lib/` — the public export surface. Note what is exported vs. kept in `src/`. Classify the package here (`SKILL.md`, *Classify the package*).
 3. **`lib/src/**`** — follow paths from the exported API inward. Read in full every file that an exported symbol's implementation passes through, within the package and its own platform implementations (`SKILL.md` Step 2); where the path enters another dependency, it continues only if the checkpoint approved that dependency.
-4. **Risk sweep** (`SKILL.md`) across its full add-mode scope.
+4. **Risk sweep** (`SKILL.md`).
 5. **`test/`** and **`example/`** — what is tested, and how a consumer is expected to use the API.
 6. **`README.md` / `CHANGELOG.md`** — claims to check against the code; release cadence; breaking-change discipline.
-7. **Plugin platform code, build hooks, builders, and analyzer plugins** (`android/`, `ios/`, `macos/`, `web/`, `windows/`, `linux/`, `hook/`, `src/` native sources, `build.yaml` builders, analyzer plugin code), including endorsed federated implementations (`SKILL.md` Step 2) — interop mechanism, manifest/permission/plist requirements, native library versions, and what runs on the developer's machine.
+7. **Plugin platform code, build hooks, builders, and analyzer plugins** (`android/`, `ios/`, `macos/`, `web/`, `windows/`, `linux/`, `hook/`, `src/` native sources, `build.yaml` builders, analyzer plugin code), including the package's own platform implementations (`SKILL.md` Step 2) — interop mechanism, manifest/permission/plist requirements, native library versions, and what runs on the developer's machine.
 
-**Large packages.** When `lib/src`, the native sources, or `example/` are too large to read in full, the risk sweep, `pubspec.yaml`, the export files, the manifests, build files, and permission declarations remain complete. Read fully the implementation behind the exported symbols the user's use case touches, in Dart and in each platform's native code (ask what they will use if unknown; when no one can answer, take the operations the README leads with and name that choice), and list the rest as *not read* in the coverage record.
+**Large packages.** When `lib/src`, the native sources, or `example/` are too large to read in full, the risk sweep, `pubspec.yaml`, the export files, the manifests, build files, and permission declarations remain complete. Read fully the implementation behind the exported symbols the user's use case touches, in Dart and in each platform's native code (ask at the checkpoint what they will use; when no one can answer, take the operations the README leads with and say so), and list the rest as *not read* in the coverage record.
 
 ## Exits
 
 - **Adopt** — depend on the package as-is.
-- **Hold it yourself** — solve it without this dependency, either **inline in the app** or **extracted to your own library**. Do not choose between the two; state the facts from the package's own source that bear on the split — the edge cases it handles (lifecycle, gesture-arena handoff, platform differences, decode/resize subtleties), how much of it is reusable, and how entangled it is with lifecycle and platforms. The difficulty the package absorbed estimates the difficulty the user would take on.
+- **Hold it yourself** — solve it without this dependency, either **inline in the app** or **extracted to your own library**. Do not choose between the two; state the facts that bear on the split — the edge cases the package handles, how much of it is reusable, and how entangled it is with lifecycle and platforms. The difficulty the package absorbed estimates the difficulty the user would take on.
 - **Skip** — neither adopt nor rebuild (the need isn't real, or an SDK primitive already covers it).
-
-When `isDiscontinued` is true, name `replacedBy` among the facts bearing on the exits.
 
 ## Comparing several packages
 
 When several packages solve the same problem, evaluate them together. The pub.dev download-sort already names the popular choice, so a comparison is only worth running to surface what that sort hides.
 
-- **Evaluate each candidate independently** — a full two-axis reading per package, with evidence and its own coverage record. Do **not** let the candidate count dilute per-package depth; the risk reading on each must be as deep as a solo evaluation.
-- **Subagents.** If subagents are available, evaluate each candidate in its own subagent and let the parent assemble the cross-cut. Tell each subagent to read `SKILL.md` and this file (give their absolute paths), and pass it the same context: the project path (or the facts read from it: SDK constraint, existing dependencies, target platforms), the distribution/license constraint, and the trusted-author list — and tell it that Step 0 is already done, so it must not ask the operator anything. Each subagent classifies its own package and returns the single-package format in a structured form (it is read by the parent, not a person), coverage record included. Subagents cannot run the dependency-inventory checkpoint: have each return its inventory first, ask the user once for all candidates, then pass each subagent the packages and *Outside pub* dependencies approved for further reading.
-- **Gate status.** For each candidate, note whether the gate fired (`publisherId` matched the operator's trusted list → scrutiny skipped) or not (stands on its source). If none matched, say so — all are judged on code. Gate status is a fact about what was read, not a ranking.
-- **Difference table — relative facts, not a ranking.** Tabulate only the axes that actually differ, cells anchored to facts/`file:line`. **Never** add a "winner" or "recommended" row.
+- **Evaluate each candidate independently** — a full reading per package, as deep as a solo evaluation, with its own coverage record.
+- **Subagents.** If subagents are available, evaluate each candidate in its own subagent and let the parent assemble the cross-cut. Tell each subagent to read `SKILL.md` and this file (give their absolute paths), pass it the Step 0 answers (project path or the facts read from it, constraints, trusted publishers), and tell it that Step 0 is already done, so it must not ask the user anything. Each subagent returns the single-package format, coverage record included. Subagents cannot run the dependency-inventory checkpoint: have each return its inventory first, ask the user once for all candidates, then pass each subagent the packages and *Outside pub* dependencies approved for further reading.
+- **Gate status.** Per candidate, fired or not; if none fired, say all stand on source.
+- **Difference table.** Only the axes that differ, cells anchored to facts/`file:line`.
 - **Surface what the download-sort hides.** Name the most-downloaded candidate, and set its highest-strength risk findings and main functionality gaps beside the other candidates' on the same categories — facts side by side, without saying which way they point.
-- **Cross-cut only two things:** shared risks (all candidates fall into the same trap — e.g. all depend on the same stale chain — stated once rather than repeated per package) and the difference table.
-- **Hand-off:** the pick is the user's. For each exit, state which candidate facts bear on it, and highlight what downloads hide. Do not choose.
+- **Shared risks.** A trap all candidates fall into (e.g. the same stale dependency chain) is stated once, not per package.
 
 ## Output formats
 
@@ -69,7 +66,7 @@ Publisher: <publisherId or null> · Gate: fired (scrutiny skipped) | not fired (
 Paradigm package | General package — <one line, why it matters here; which source settled it>
 
 ## Dependency inventory
-- Platform: <count> · Author's own: <count, names; those read with the package marked> · Third-party: <count, names; unverified publishers marked> · Outside pub: <name version (`file:line`), …> · Already in project: <names>
+- Platform: <count> · Author's own: <count, names> · Third-party: <count, names; unverified publishers marked> · Outside pub: <name version (`file:line`), …> · Already in project: <names> · (read with the package marked in any group)
 - Checkpoint: <question as asked, delegated-core packages marked> | skipped — nothing to offer | not asked — <reason>; <the question that would have been asked>
 - Read in detail (user-approved): <names> | none · Outside pub investigated: <names — what was done> | none
 
@@ -86,7 +83,7 @@ Paradigm package | General package — <one line, why it matters here; which sou
 ### <level>   ← medium and low: one line per finding
 - **<category>** [<platforms, when not all>] — <finding> (`file:line` / field)
 
-### Not found
+### No finding
 - Checked — none: <category (what was searched)>, …
 - Not checked: <category — reason>, …
 
@@ -117,7 +114,7 @@ Paradigm package | General package — <one line, why it matters here; which sou
 # Comparison: <problem> — <pkg A> / <pkg B> / <pkg C>
 
 ## Summary
-- Per candidate: Findings: max <n> · xhigh <n> · high <n> · medium <n> · low <n> — then its findings from medium up, one line each, with evidence pointers
+- Per candidate: <the single-package Summary>
 
 ## Context
 <as in the single-package format>
