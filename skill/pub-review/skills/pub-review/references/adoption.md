@@ -33,7 +33,7 @@ When `isDiscontinued` is true, name `replacedBy` among the facts bearing on the 
 When several packages solve the same problem, evaluate them together. The pub.dev download-sort already names the popular choice, so a comparison is only worth running to surface what that sort hides.
 
 - **Evaluate each candidate independently** — a full two-axis reading per package, with evidence and its own coverage record. Do **not** let the candidate count dilute per-package depth; the risk reading on each must be as deep as a solo evaluation.
-- **Subagents.** If subagents are available, evaluate each candidate in its own subagent and let the parent assemble the cross-cut. Tell each subagent to read `SKILL.md` and this file (give their absolute paths), and pass it the same context: the project path (or the facts read from it: SDK constraint, existing dependencies, target platforms), the distribution/license constraint, and the trusted-author list — and tell it that Step 0 is already done, so it must not ask the operator anything. Each subagent classifies its own package and returns the single-package format, coverage record included. Subagents cannot run the dependency-inventory checkpoint: have each return its inventory first, ask the user once for all candidates, then pass each subagent the packages and *Outside pub* dependencies approved for further reading.
+- **Subagents.** If subagents are available, evaluate each candidate in its own subagent and let the parent assemble the cross-cut. Tell each subagent to read `SKILL.md` and this file (give their absolute paths), and pass it the same context: the project path (or the facts read from it: SDK constraint, existing dependencies, target platforms), the distribution/license constraint, and the trusted-author list — and tell it that Step 0 is already done, so it must not ask the operator anything. Each subagent classifies its own package and returns the single-package format in a structured form (it is read by the parent, not a person), coverage record included. Subagents cannot run the dependency-inventory checkpoint: have each return its inventory first, ask the user once for all candidates, then pass each subagent the packages and *Outside pub* dependencies approved for further reading.
 - **Gate status.** For each candidate, note whether the gate fired (`publisherId` matched the operator's trusted list → scrutiny skipped) or not (stands on its source). If none matched, say so — all are judged on code. Gate status is a fact about what was read, not a ranking.
 - **Difference table — relative facts, not a ranking.** Tabulate only the axes that actually differ, cells anchored to facts/`file:line`. **Never** add a "winner" or "recommended" row.
 - **Surface what the download-sort hides.** Name the most-downloaded candidate, and set its highest-strength risk findings and main functionality gaps beside the other candidates' on the same categories — facts side by side, without saying which way they point.
@@ -48,14 +48,19 @@ When several packages solve the same problem, evaluate them together. The pub.de
 # Evaluation: <package> <version>
 
 ## Summary
-- Project fit: resolves <yes | no — conflict>; requirements vs. the project <fit | the gap> | not checked — no project path
-- <strength> — <finding, one line> (`file:line` / field)   ← the findings at the highest strength level present, one line each; lower levels stay in Risk
+- Project fit: resolves <yes | no — conflict>; requirements vs. the project <fit | the gaps, see Project fit> | not checked — no project path
+- Findings: max <n> · xhigh <n> · high <n> · medium <n> · low <n>
+- <strength> — <finding, one line> (`file:line` / field)   ← every finding from medium up, ordered by strength; low findings are counted above and listed in Risk
 - Not checked: <lens or category that matters most> — <reason>
 - Tension: <main tension, one line>
 
+## Project fit
+- Resolves: yes, adding <packages> | no — <conflict> | not checked — no project path
+- Requirements imposed on the app — SDK and Flutter floors, platform minimums, permissions and manifest or plist entries, toolchain: <requirement, `file:line`> — <the project's declared value | not declared in the project | not checked — no project path>
+
 ## Context
 Entry: add · Project: <path or "none (fresh addition)"> · Targets: <list or unknown> · Distribution/license constraint: <given or none> · Defaulted: <Step 0 items not answered>
-Run: <date> · Dart <version> · Flutter <version> · archive_sha256 <hash, one per archive read> · repository <url>@<commit> (tag <matched>; one per archive when they differ)
+Paths: <alias> = <unpacked package or clone>, …   ← short aliases used in `file:line` below
 
 ## Gate
 Publisher: <publisherId or null> · Gate: fired (scrutiny skipped) | not fired (read the source)
@@ -73,16 +78,21 @@ Paradigm package | General package — <one line, why it matters here; which sou
 - Checked — none: <lens (what was read)>, … · Not checked: <lens — reason>, …
 
 ## Risk
-Findings across all categories, ordered by strength:
-- <strength: max | xhigh | high | medium | low> · <category> — <finding>
+### <level>   ← one heading per level with findings, highest first; max, xhigh, and high carry the full detail
+- **<category>** [<platforms, when not all>] — <finding>
   - evidence: `file:line` / construct / metadata field
   - why it bites: <one or two lines>
   - bites hardest when: <project condition>
+### <level>   ← medium and low: one line per finding
+- **<category>** [<platforms, when not all>] — <finding> (`file:line` / field)
 
+### Not found
 - Checked — none: <category (what was searched)>, …
 - Not checked: <category — reason>, …
-- **License** — <package license; dependency and vendored licenses> — facts only when no constraint was given; otherwise the strength against the constraint
-- **Download base** — <weak signal, one line; no strength>
+
+### Facts without a strength
+- **License** — <package license; dependency and vendored licenses> (with a distribution/license constraint, a mismatch is a finding under its level instead)
+- **Download base** — <weak signal, one line>
 
 ## Tensions
 - <functionality-vs-risk divergences; same-observation-two-axes notes>
@@ -93,6 +103,7 @@ Findings across all categories, ordered by strength:
 - Not read: <directories/files, why>
 - Sweep terms per category: <category: terms>
 - Metadata not fetched: <fields, why>
+- Run: <date> · Dart <version> · Flutter <version> · archive_sha256 <hash, one per archive read> · repository <url>@<commit> (tag <matched>; one per archive when they differ)
 
 ## Hand-off
 - Exits: adopt | hold it yourself (inline ↔ extract to library) | skip — with the facts bearing on each.
@@ -106,7 +117,7 @@ Findings across all categories, ordered by strength:
 # Comparison: <problem> — <pkg A> / <pkg B> / <pkg C>
 
 ## Summary
-- Per candidate: <highest-strength finding, one line, with evidence pointer>
+- Per candidate: Findings: max <n> · xhigh <n> · high <n> · medium <n> · low <n> — then its findings from medium up, one line each, with evidence pointers
 
 ## Context
 <as in the single-package format>

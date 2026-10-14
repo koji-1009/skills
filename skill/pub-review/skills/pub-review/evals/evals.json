@@ -16,7 +16,7 @@
         "The coverage record lists the search terms used for each risk-sweep category",
         "Dependencies were resolved through a scratch consumer project, and the inventory sorts every resolved package into platform, author's own, and third-party by publisherId",
         "Before reading dependencies in detail, the run asks the user which non-platform packages to read, or, with no one to answer, reads none and says so",
-        "The output opens with a summary of the highest-strength findings, ordered by strength, without pointing to an exit",
+        "The full output is written to a file and opens with a summary that counts findings per strength level and lists every finding from medium up, without pointing to an exit; the reply gives the counts, every finding at high or above, and the file path",
         "The run record states the date, SDK versions, archive_sha256, and repository commit",
         "No command that builds, runs, tests, analyzes, or generates code in the unpacked package or the consumer project was executed",
         "A tensions section names where the functionality and risk readings diverge, or states that they do not",

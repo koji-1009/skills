@@ -12,6 +12,8 @@ This skill carries one senior Flutter engineer's axes for judging a library and 
 
 It produces **two independent readings**, not one score: **functionality & quality** (what the package solves, and how well) and **risk** (what should make a user cautious about depending on it, *regardless of how good the functionality is*). "The functionality is excellent, but the risk is high" is the most valuable thing it can say — and exactly what a score hides. The risk reading is where depth shows, so it is anchored to `file:line` and backed by a coverage record.
 
+What is evaluated is the dependency the project takes on: the package and everything it adds to the app — its pub dependencies and the dependencies it adds outside pub.
+
 It has two entry points: **add** (one package or several candidates, before depending — `references/adoption.md`) and **update** (a package already in the project, before moving to a newer version — `references/update.md`). This file holds what both share; the mode file holds that mode's steps, exits, and output format.
 
 ## Stance (non-negotiable)
@@ -37,6 +39,7 @@ The one item without a default is the current version in an update with no proje
 2. **Project path** (optional): a directory with `pubspec.yaml`. If given, read from it rather than asking further: the SDK constraint, existing dependencies (`pubspec.yaml`), resolved versions (`pubspec.lock`), target platforms (the presence of `android/`, `ios/`, `web/`, `macos/`, `windows/`, `linux/`), and the platform build settings a package's requirements are compared against (minimum and compile SDK levels, deployment targets, toolchain versions) where the project declares them.
 3. **Distribution and license constraints** (optional): e.g. closed-source app store distribution, or "no copyleft". Without an answer, report license facts without judging compatibility.
 4. **Trusted authors** (optional): *"Any developers you trust enough to skip scrutiny on?"* Identify each as a pub.dev verified publisher ID (e.g. `dart.dev`) — the only identity the gate matches against.
+5. **Report path** (optional): where to write the full output (see *Hand-off*). Default: the scratch directory.
 
 Defaults when no project path is supplied: rate every dependency-shaped risk as a fresh addition; rate every other risk by its consequence alone and name the triggering condition under *bites hardest when*; treat target platforms as unknown (report the package's support matrix without comparing it); and record every project-dependent check as *not checked — no project path*.
 
@@ -58,7 +61,7 @@ If a fetch fails, record the field as *not checked — <reason>* in the coverage
 
 ## Step 2 — Get the source
 
-Work in a scratch directory outside the user's project: the agent's scratchpad directory if one exists, else `$TMPDIR/pkg-eval`. Below, `<scratch>` stands for that directory. Everything the run writes stays under it, so that removing it removes the run; the Dart tools' own pub cache is the one exception. Run each command on its own.
+Work in a scratch directory outside the user's project: the agent's scratchpad directory if one exists, else `$TMPDIR/pkg-eval`. Below, `<scratch>` stands for that directory. Everything the run writes stays under it, so that removing it removes the run; the Dart tools' own pub cache and a report path the operator gave are the exceptions. Run each command on its own.
 
 ```bash
 mkdir -p <scratch>
@@ -77,7 +80,7 @@ dart pub deps --style=list -C <scratch>/consumer
 
 The result is exactly what a consumer would pull in, dev dependencies excluded. It feeds the dependency inventory below.
 
-**The package's own platform implementations.** Unpack and read, as part of the package, the implementations it selects for each platform — endorsed federated implementations (`flutter.plugin.platforms.<platform>.default_package`) and packages its own conditional imports select (`if (dart.library.js_interop) 'package:…'`) — and the platform-interface package its public API forwards to. Do this for the project's target platforms (all of them when targets are unknown); these are where platform behavior, native requirements, and native risks live, so they bypass the dependency checkpoint.
+**The package's own platform implementations.** Unpack and read, as part of the package, the implementations it selects for each platform — endorsed federated implementations (`flutter.plugin.platforms.<platform>.default_package`) and packages its own conditional imports select (`if (dart.library.js_interop) 'package:…'`) — and the platform-interface package its public API forwards to. Do this for the project's target platforms (all of them when targets are unknown); record the others as *not read — not a project target*, and read them when the operator asks; these are where platform behavior, native requirements, and native risks live, so they bypass the dependency checkpoint.
 
 **Archive vs. repository.** For the version being judged (the target, in update mode), find the matching source in the repository and compare it with the unpacked archive. The pubspec `repository` is often a browse URL into a monorepo (`https://github.com/<org>/<repo>/tree/<branch>/<path>`): clone `https://github.com/<org>/<repo>` and compare the `<path>` subdirectory. If the URL points at the repository root and the package is not there, find the subdirectory whose `pubspec.yaml` has the package's `name:`. List the repository's tags (`git ls-remote --tags`) and take the one naming this version; monorepos prefix tags per package or per directory (`http-v1.5.0`, `web-v2.0.3`). Record which one matched. Compare every file the archive ships, generated files included; a difference that pub explains (a rewritten workspace `pubspec.yaml`, VCS-only files, empty directories) is noted, not flagged. Code present in the archive but absent from the tagged repo is a risk finding (see *Published archive diverges*). If no tag names the version, say so, compare against the commit whose content matches (the version-bump commit, else the branch head), and record that the match is by content, not by tag. The match proves only that the archive equals *that* repository, which the uploader chose; say so when the repository is not under the verified publisher's organization.
 
@@ -90,11 +93,11 @@ Then list every package the consumer resolution pulled in, direct and transitive
 - **Platform** — SDK packages (`source: sdk` in the consumer's `pubspec.lock`, e.g. `flutter`, `sky_engine`), packages published by `dart.dev`, `flutter.dev`, or another publisher under those domains (e.g. `tools.dart.dev`), and anything the `flutter` SDK package itself depends on. Maintained by or for the Dart and Flutter teams; not read further.
 - **Author's own** — published by the same `publisherId` as the evaluated package, or, when it has none, pointing to a repository under the same owner. The package's own platform implementations and interface (Step 2) are listed here as read with the package and are not offered at the checkpoint.
 - **Third-party** — everything else; note which have no verified publisher.
-- **Outside pub** — what the package itself pulls in that pub does not resolve (a transitive plugin's are that plugin's): native dependencies (Gradle/Maven, CocoaPods, Swift Package Manager), JS packages and CDN URLs, vendored sources, and libraries fetched by `hook/` — each with its name and version as declared, and the `file:line` that declares it.
+- **Outside pub** — dependencies the package itself adds to the app that pub does not resolve (a transitive plugin's are that plugin's): native dependencies it declares (Gradle/Maven, CocoaPods, Swift Package Manager), JS packages and CDN URLs it loads, vendored sources, and libraries fetched by `hook/` — each with its name and version as declared, and the `file:line` that declares it. Build tools (build plugins, the build classpath) and test-only dependencies are not dependencies of the app and are left out.
 
 The inventory is itself a risk reading. A footprint made mostly of platform packages is unremarkable. A large number of third-party packages, packages without a verified publisher, or a heavy reliance on the author's own packages (personal "core"/"utils" families) is the supply-chain and bus-factor risk this skill exists to surface: report it under *Utility grab-bag* and *Single-maintainer concentration* with the counts and names. With a project path, mark packages the project already resolves; they add no increment.
 
-Then pause: show the user the inventory with the heuristic reading, and ask which non-platform packages to read in detail and which *Outside pub* dependencies to investigate further. In the question, mark the packages the evaluated package delegates its core behavior to (its widgets build on them, its loading or caching calls into them): until they are read, the lenses that depend on that behavior stay *not checked*. On approval, unpack each chosen package and give it the risk sweep and the Axis 2 categories (no Axis 1 reading); findings go under the evaluated package's risk, attributed to the dependency that carries them. How an approved *Outside pub* dependency is investigated is not fixed here; record what was done and what it found. What is not chosen is *not read* in the coverage record, with its metadata findings still reported. When nothing is left to offer — no non-*Platform* package beyond those read with the package, and *Outside pub* empty — skip the question and say so. When no one can answer (see Step 0), read none and say so.
+Then pause: show the user the inventory with the heuristic reading, and ask which non-platform packages to read in detail and which *Outside pub* dependencies to investigate further. In the question, mark the packages the evaluated package delegates its core behavior to (its widgets build on them, its loading or caching calls into them): until they are read, the lenses that depend on that behavior stay *not checked*. On approval, unpack each chosen package and give it the risk sweep and the Axis 2 categories (no Axis 1 reading); findings go under the evaluated package's risk, attributed to the dependency that carries them. How an approved *Outside pub* dependency is investigated is not fixed here; record what was done and what it found. What is not chosen is *not read* in the coverage record, with its metadata findings still reported. When nothing is left to offer — no non-*Platform* package beyond those read with the package, and *Outside pub* empty (in an update, nothing of either *added*) — skip the question and say so. When no one can answer (see Step 0), read none and say so.
 
 ## Classify the package
 
@@ -144,7 +147,7 @@ What should make a user cautious about depending on the package **regardless of 
 | **medium** | Contained cost: a local workaround, a wrapper, a pinned constraint. |
 | **low** | Noticeable but cheap, or a burden that is shrinking over time. |
 
-For each finding give: the category, the strength, **evidence** (`file:line`, construct, or metadata field), *why it bites*, and *under what project conditions it bites hardest*. Strength is modulated by the project's context (target platforms, lifespan, existing dependencies) — a bespoke engine is xhigh for a long-lived product and medium for a throwaway tool.
+For each finding give: the category, the strength, the platforms it affects when not all, **evidence** (`file:line`, construct, or metadata field), *why it bites*, and *under what project conditions it bites hardest*. Strength is modulated by the project's context (target platforms, lifespan, existing dependencies) — a bespoke engine is xhigh for a long-lived product and medium for a throwaway tool.
 
 **Against the project's dependency graph.** When a project path is supplied, set the strength of dependency-shaped risks against that reality: a dependency the project *already* has adds no increment; a codegen or version constraint that *collides* with what's already pinned (e.g. an `analyzer` ceiling, an SDK lower bound above the project's) is higher; one that fits is lower. This shifts the *strength*, never the *reading* — the dependency is still reported exactly as found.
 
@@ -192,14 +195,20 @@ Do not resolve tensions into a number. Naming them *is* the value.
 
 ## Summary and run record (both entry points)
 
-Open the output with a short summary: the findings at the highest strength level present (correctness defects included), the lenses left *not checked* that matter most, and the main tensions, each one line with its strength and evidence pointer. It restates findings; it does not weigh them against each other or point to an exit. Within the Risk section, too, order findings by strength.
+Open the output with a short summary: the count of findings at each strength level, one line per finding from medium up (correctness defects included) with its strength and evidence pointer, the lenses left *not checked* that matter most, and the main tensions. It restates findings; it does not weigh them against each other or point to an exit. The Risk section groups findings by level, highest first, and the detail follows the level: max, xhigh, and high carry evidence, why it bites, and when it bites hardest; medium and low are one line each.
 
 Record what makes the reading reproducible: the date, the Dart and Flutter SDK versions used, each evaluated version's `archive_sha256`, and the repository commit compared against.
+
+## Self-review (both entry points)
+
+Before handing off, reread the whole output once. Each finding is stated in full in one place — Risk (or Risk delta) — and every other section that needs it points there instead of restating it. The Summary's counts match the findings, every lens and category has a state, and no section contradicts another.
 
 ## Hand-off (both entry points)
 
 End by naming the exits the mode file lists and, for each, the facts from the reading that bear on it. Summarize how the project's context — target platforms, lifespan, existing dependencies, distribution constraints — modulates the risk strengths. Then stop. **Do not pick an exit, and do not score.** The reading is the deliverable.
 
-The output formats in the mode files fix structure, not wording: headings and labels (strength levels, coverage states, exit names) may be written in whatever language the output is in.
+Write the full output to a file — at the path the operator gave, else in the scratch directory — and reply with the count of findings per level, every finding at high or above, the lenses left *not checked* that matter most, and the file's path. The file holds everything; the reply is cut by strength level, not by judgment.
+
+The output formats in the mode files fix content and structure, not serialization or wording: write Markdown for a person to read and a structured form (e.g. YAML-like) for an agent that consumes it, such as a parent assembling a comparison. Headings and labels (strength levels, coverage states, exit names) may be written in whatever language the output is in.
 
 Keep every reading evidence-first and terse. The value is in pointing at the code — especially on the risk axis — not in adjectives.
