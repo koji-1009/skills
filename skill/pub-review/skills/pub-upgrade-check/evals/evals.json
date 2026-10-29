@@ -11,6 +11,39 @@
         "Does not unpack, diff, or report impact without a project",
         "Does not claim the upgrade is safe or unsafe"
       ]
+    },
+    {
+      "id": 2,
+      "prompt": "Dependabot wants to bump sqlite3 from 3.7.1 to 3.8.0 in the app at sqlite3_app/. Does that affect my app?",
+      "expected_output": "A per-package result in which the hook and its reach are read on the app's paths, a changed hash or release tag of the prebuilt library is listed under Build inputs, and a signal is raised only if the way the hook fetches changed.",
+      "files": [
+        "evals/files/sqlite3_app/pubspec.yaml",
+        "evals/files/sqlite3_app/pubspec.lock",
+        "evals/files/sqlite3_app/lib/main.dart"
+      ],
+      "expectations": [
+        "hook/build.dart and hook/link.dart are read with their reach into lib/src, in both versions",
+        "Each hash, URL, or ref of the prebuilt library that changed between the versions is listed under Build inputs with file:line in both versions, the URL as the code builds it, and whether the bytes are hash-checked",
+        "A new hash or tag alone does not raise an escalation signal and does not make the result affected",
+        "Each escalation signal, if any, comes with the scope of its follow-up, and no follow-up is run without approval",
+        "The used symbols are taken from the app's lib/main.dart, with path:line"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Can I bump shared_preferences from 2.5.5 to 2.5.6 in the Flutter app at prefs_app/?",
+      "expected_output": "A per-package result in which the rebuilt DevTools extension bundle is not searched, its changed files are listed under Build inputs by sha256, and only a newly added compiled artifact would raise a signal.",
+      "files": [
+        "evals/files/prefs_app/pubspec.yaml",
+        "evals/files/prefs_app/pubspec.lock",
+        "evals/files/prefs_app/lib/main.dart"
+      ],
+      "expectations": [
+        "Files under extension/devtools/build/ are treated as compiled artifacts: not searched for escalation signals",
+        "Each compiled artifact that changed between the versions is listed under Build inputs with its sha256 in both versions",
+        "No network-access or other escalation signal is raised from the compiled bundle's contents",
+        "The result line is given per package, with no verdict on whether to merge"
+      ]
     }
   ]
 }

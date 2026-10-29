@@ -80,6 +80,67 @@
         "flutter_markdown is reported as discontinued with replacedBy flutter_markdown_plus in the package-status section",
         "The output does not say to merge or not to merge"
       ]
+    },
+    {
+      "id": 6,
+      "prompt": "Should I depend on sqlite3 for local storage in my Flutter app?",
+      "expected_output": "An add evaluation in which the hook's download of a prebuilt SQLite library is read through its reach into lib/src, and the fetch is classified by whether the package's own code compares the bytes against a hash.",
+      "files": [],
+      "expectations": [
+        "hook/build.dart and the code it reaches under lib/src (where the download and the hash comparison sit) are read, even if the package is too large to read in full",
+        "The build-time fetch is classified as pinned or unverified by whether a hash fixed in the package's own code is compared against the downloaded bytes, citing the hash table and the comparison with file:line",
+        "The fetch record gives the URL as the code builds it, including the user-define that can override it, and who controls the host",
+        "The output states that a pinned hash fixes the bytes to the author's pin, not to a source",
+        "The hook is reported under code run on the developer's machine as implicit",
+        "No command that builds, runs, tests, analyzes, or generates code was executed"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Is shared_preferences fine to adopt?",
+      "expected_output": "An add evaluation in which the prebuilt DevTools extension bundle is listed as a compiled artifact, kept out of the size measure, and not reported as archive divergence.",
+      "files": [],
+      "expectations": [
+        "The files under extension/devtools/build/ are listed as compiled artifacts with path, size, and sha256, and marked not read — compiled",
+        "The compiled bundle does not count toward too large to read in full, so the package's own Dart code is read as for a package of its own size",
+        "The bundle's absence from the repository is reported under compiled artifacts in the archive, with its source stated, not as published archive diverges",
+        "Example app icons and other images are not listed as compiled artifacts",
+        "The DevTools extension is reported as explicit code run on the developer's machine"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "We need libc++_shared.so in our Android build. Review android_libcpp_shared before we add it.",
+      "expected_output": "An add evaluation in which the hook that copies the C++ runtime from the build machine's NDK is reported as a build-machine input, with how it chooses the file and what pins it.",
+      "files": [],
+      "expectations": [
+        "The bundled libc++_shared.so is reported as a build-machine input: what the hook takes, how it chooses among installed NDKs, and that nothing pins it",
+        "What environment the hook can read is settled from the hook runner's source, not assumed",
+        "The hook is reported as implicit code run on the developer's machine, with what it does beyond copying the file"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Evaluate crop_your_image. Read every non-platform dependency in detail, and skip any Outside pub dependencies.",
+      "expected_output": "An add evaluation that takes the checkpoint answers from the request instead of pausing, reads every non-platform dependency to the approved depth, and says the answers came from the request.",
+      "files": [],
+      "expectations": [
+        "The run does not pause at the dependency checkpoint to ask which packages to read",
+        "Every non-platform dependency is read to the On approval depth: its risk sweep, the files under its lib/ outside lib/src/, and the reach of what the evaluated package names in it",
+        "Outside pub dependencies are not investigated",
+        "The output states that the checkpoint answers were taken from the request"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Is animated_to a reasonable dependency?",
+      "expected_output": "An add evaluation without a project path in which a dependency cap that excludes the current release of a shared package reads typically medium, and single-maintainer concentration reads typically high.",
+      "files": [],
+      "expectations": [
+        "A cap in the dependency chain that excludes the current release of a shared dependency is reported under SDK and constraint compatibility, typically medium, with bites hardest when naming a dependency that requires that release",
+        "Single-maintainer concentration is rated high or lower, not xhigh",
+        "Every project-dependent check is marked not checked — no project path"
+      ]
     }
   ]
 }
