@@ -1,8 +1,0 @@
-name: sqlite3_app
-publish_to: none
-
-environment:
-  sdk: ^3.10.0
-
-dependencies:
-  sqlite3: ^3.7.1
