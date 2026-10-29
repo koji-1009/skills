@@ -15,14 +15,14 @@ If the author gate (`SKILL.md` Step 1) fires, these are still done and nothing e
 Start with the import scan, the dependency inventory, and its checkpoint (`SKILL.md`, *Dependency inventory*), then:
 
 1. **`pubspec.yaml`** — SDK constraint, `flutter.plugin.platforms`, dependencies vs. dev_dependencies.
-2. **`lib/<package>.dart`** and every other file directly under `lib/` — the public export surface. Note what is exported vs. kept in `src/`. Classify the package here (`SKILL.md`, *Classify the package*).
+2. **`lib/<package>.dart`** and every other file under `lib/` outside `lib/src/` — the public export surface. Note what is exported vs. kept in `src/`. Classify the package here (`SKILL.md`, *Classify the package*).
 3. **`lib/src/**`** — every `.dart` file under `lib/` not read in step 2, in full, in the package and its own platform implementations (`SKILL.md` Step 2). A dependency's code is read only when the checkpoint approved it, to the depth *On approval* sets.
 4. **Risk sweep** (`SKILL.md`).
-5. **`test/`** — every file skimmed, with each `group`/`test` description read; bodies are not read. **`example/`** — the example entry file (`example/lib/main.dart`, else `example/main.dart`, else `example/example.dart`, else the single `.dart` file directly under `example/`) and every file under `example/` it reaches by `import`, in full; nothing else under `example/`.
-6. **`README.md` / `CHANGELOG.md`** — claims to check against the code; release cadence; breaking-change discipline.
+5. **`test/`** — every file skimmed, with each `group`/`test` description read; bodies are not read. **`example/`** — the example entry file (`example/lib/main.dart`, else `example/main.dart`, else `example/example.dart`, else the single `.dart` file directly under `example/`, else the `lib/main.dart` of each app directly under `example/`, else every `.dart` file directly under `example/`) and every file under `example/` it reaches by `import`, in full; nothing else under `example/`.
+6. **`README.md` / `CHANGELOG.md`**, and any other top-level document addressed to developers or AI tools (e.g. `AI_GUIDE.md`) — claims to check against the code; release cadence; breaking-change discipline.
 7. **The rest of the risk-sweep scope** (`SKILL.md`, *Risk sweep*) outside `lib/`, in full — interop mechanism, manifest/permission/plist requirements, native library versions, and what runs on the developer's machine.
 
-**Large packages.** Before the checkpoint, measure what steps 3 and 7 would read in full, compiled artifacts (`SKILL.md`, *Reading terms*) excluded. When it is *too large to read in full* (`SKILL.md`, *Reading terms*), the risk sweep, `pubspec.yaml`, the files directly under `lib/`, `hook/`, and the build and manifest files (`AndroidManifest.xml`, `build.gradle`, `build.gradle.kts`, `settings.gradle`, `*.podspec`, `Package.swift`, `CMakeLists.txt`, `Info.plist`, `*.entitlements`, `PrivacyInfo.xcprivacy`, `build.yaml`) remain complete, and `hook/build.dart` and `hook/link.dart` are read with their reach (`SKILL.md`, *Reading terms*), through `lib/src` included. Steps 3 and 7 then read only the reach of the used symbols, Dart and native alike: the exported symbols the user named at the checkpoint (a feature named by description is mapped to the exported symbols the README documents for it; record the mapping), else those called in the README's first code block, else those called in the example entry file (step 5) — saying which. A file is *read in full* only when every declaration in it was reached, else *skimmed* with the declarations read; everything else is *not read*.
+**Large packages.** Before the checkpoint, measure what steps 3 and 7 would read in full, compiled artifacts (`SKILL.md`, *Reading terms*) excluded. When it is *too large to read in full* (`SKILL.md`, *Reading terms*), the risk sweep, `pubspec.yaml`, the files under `lib/` outside `lib/src/`, `hook/`, and the build and manifest files (`AndroidManifest.xml`, `build.gradle`, `build.gradle.kts`, `settings.gradle`, `*.podspec`, `Package.swift`, `CMakeLists.txt`, `Info.plist`, `*.entitlements`, `PrivacyInfo.xcprivacy`, `build.yaml`) remain complete, and `hook/build.dart` and `hook/link.dart` are read with their reach (`SKILL.md`, *Reading terms*), through `lib/src` included. Steps 3 and 7 then read only the reach of the used symbols, Dart and native alike: the exported symbols the user named at the checkpoint (a feature named by description is mapped to the exported symbols the README documents for it; record the mapping), else those called in the README's first code block that calls the package's API, else those called in the example entry files (step 5) — saying which. A file is *read in full* only when every declaration in it was reached, else *skimmed* with the declarations read; everything else is *not read*.
 
 ## Exits
 
@@ -94,7 +94,7 @@ Paradigm package | General package — <one line, why it matters here; which sou
 - Not checked: <category — reason>, …
 
 ### Facts without a strength
-- **License** — <package license; dependency and vendored licenses> (with a distribution/license constraint, a mismatch is a finding under its level instead)
+- **License** — <package license; dependency and vendored licenses> (a `LICENSE` that disagrees with the tag, vendored code under a different license, or, with a distribution/license constraint, a mismatch, is a finding under its level instead)
 - **Download base** — <weak signal, one line>
 
 ## Tensions
