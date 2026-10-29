@@ -1,4 +1,4 @@
-# Update — evaluating a move to a newer version
+# Upgrade — evaluating a move to a newer version
 
 Everything in `SKILL.md` applies.
 
@@ -49,7 +49,7 @@ Facts not carried by the diff — `isDiscontinued`/`replacedBy`, a retracted tar
 ## Output format
 
 ```markdown
-# Update: <package> <current> → <target>
+# Upgrade: <package> <current> → <target>
 
 ## Summary
 - Resolves: yes, moving <packages> | no — <conflict> | not checked — no project path
@@ -69,7 +69,7 @@ Traced by reading the project's source, not by compiling it.
 (Without a project path: not checked — no project path.)
 
 ## Context
-Entry: update · Project: <path or "none"> · Targets: <list or unknown> · Distribution/license constraint: <given or none> · Defaulted: <Step 0 items the request left open>
+Entry: upgrade · Project: <path or "none"> · Targets: <list or unknown> · Distribution/license constraint: <given or none> · Defaulted: <Step 0 items the request left open>
 Paths: <alias> = <unpacked package or clone>, …   ← short aliases used in `file:line` below
 
 ## Gate

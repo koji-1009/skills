@@ -4,9 +4,9 @@ Agent skills by koji-1009.
 
 ## Skills
 
-[**skill/pub-review.md**](skill/pub-review/skills/pub-review/SKILL.md) — Source-level review of a pub.dev (Flutter/Dart) dependency. Two entry points: add (vet one package, or compare candidates, before depending on it) and update (review in full a move from the locked version to a target by reading the whole diff). Produces two independent readings — functionality/quality and risk — anchored to `file:line`, with a coverage record, and hands the decision to the user without a verdict.
+[**skill/pub-review.md**](skill/pub-review/skills/pub-review/SKILL.md) — Source-level review of a pub.dev (Flutter/Dart) dependency. Two entry points: add (vet one package, or compare candidates, before depending on it) and upgrade (review in full a move from the locked version to a target by reading the whole diff). Produces two independent readings — functionality/quality and risk — anchored to `file:line`, with a coverage record, and hands the decision to the user without a verdict.
 
-The skill is a directory: `SKILL.md` holds the shared core and routes to `references/adoption.md` or `references/update.md`. Install all three files together.
+The skill is a directory: `SKILL.md` holds the shared core and routes to `references/adoption.md` or `references/upgrade.md`. Install all three files together.
 
 [**skill/pub-upgrade-check.md**](skill/pub-review/skills/pub-upgrade-check/SKILL.md) — Routine check of whether an app is affected by upgrading its pub.dev dependencies. Reads the package diff only where the app reaches it — used symbols, behavior on called paths, requirements, advisories — and flags supply-chain changes, each with a follow-up scoped to where it lies. A single `SKILL.md`; needs a project path.
 
@@ -49,7 +49,7 @@ Otherwise, copy the skill directory to your agent's configuration:
 mkdir -p .claude/skills/pub-review/references
 curl -o .claude/skills/pub-review/SKILL.md https://raw.githubusercontent.com/koji-1009/skills/main/skill/pub-review/skills/pub-review/SKILL.md
 curl -o .claude/skills/pub-review/references/adoption.md https://raw.githubusercontent.com/koji-1009/skills/main/skill/pub-review/skills/pub-review/references/adoption.md
-curl -o .claude/skills/pub-review/references/update.md https://raw.githubusercontent.com/koji-1009/skills/main/skill/pub-review/skills/pub-review/references/update.md
+curl -o .claude/skills/pub-review/references/upgrade.md https://raw.githubusercontent.com/koji-1009/skills/main/skill/pub-review/skills/pub-review/references/upgrade.md
 mkdir -p .claude/skills/pub-upgrade-check
 curl -o .claude/skills/pub-upgrade-check/SKILL.md https://raw.githubusercontent.com/koji-1009/skills/main/skill/pub-review/skills/pub-upgrade-check/SKILL.md
 ```
