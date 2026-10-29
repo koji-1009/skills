@@ -24,7 +24,7 @@ It is the light counterpart of pub-review, which reads a package or an upgrade i
 ## Reading terms
 
 - **Hit context** — for a search hit, the whole declaration or block that contains it, plus the file's directives.
-- **Reach of a symbol** — its declaration, plus every declaration of the package (and of the packages Step 3 unpacks with it) that a declaration already in the set names, repeated until nothing is added; it crosses the Dart–native boundary by name (method-channel handler `case`, FFI symbol, JS export, registered plugin class).
+- **Reach of a symbol** — its declaration, plus every declaration of the package (and of the packages Step 3 unpacks with it) that a declaration already in the set names, repeated until nothing is added; it crosses the Dart–native boundary by name (method-channel handler `case`, FFI symbol, JS export, registered plugin class). A build or link hook's reach also takes in every file it passes to a compiler or bundles, by path or by directory listing, wherever it sits.
 - **One level** — the named declaration in full, and nothing it names in turn.
 - **Call chain from a line** — the declarations that line calls, followed one declaration at a time through the package, its native code, and the SDK, framework, engine, tool, and platform-SDK sources on this machine, reading only the declarations on the chain, until one fixes the outcome or the chain reaches a file not on this machine; one chain per target platform.
 
