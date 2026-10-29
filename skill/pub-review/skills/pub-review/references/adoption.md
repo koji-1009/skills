@@ -22,7 +22,7 @@ Start with the import scan, the dependency inventory, and its checkpoint (`SKILL
 6. **`README.md` / `CHANGELOG.md`** — claims to check against the code; release cadence; breaking-change discipline.
 7. **The rest of the risk-sweep scope** (`SKILL.md`, *Risk sweep*) outside `lib/`, in full — interop mechanism, manifest/permission/plist requirements, native library versions, and what runs on the developer's machine.
 
-**Large packages.** Before the checkpoint, measure what steps 3 and 7 would read in full. When it is *too large to read in full* (`SKILL.md`, *Reading terms*), the risk sweep, `pubspec.yaml`, the files directly under `lib/`, `hook/`, and the build and manifest files (`AndroidManifest.xml`, `build.gradle`, `build.gradle.kts`, `settings.gradle`, `*.podspec`, `Package.swift`, `CMakeLists.txt`, `Info.plist`, `*.entitlements`, `PrivacyInfo.xcprivacy`, `build.yaml`) remain complete. Steps 3 and 7 then read only the reach of the used symbols, Dart and native alike: the exported symbols the user named at the checkpoint (a feature named by description is mapped to the exported symbols the README documents for it; record the mapping), else those called in the README's first code block, else those called in the example entry file (step 5) — saying which. A file is *read in full* only when every declaration in it was reached, else *skimmed* with the declarations read; everything else is *not read*.
+**Large packages.** Before the checkpoint, measure what steps 3 and 7 would read in full, compiled artifacts (`SKILL.md`, *Reading terms*) excluded. When it is *too large to read in full* (`SKILL.md`, *Reading terms*), the risk sweep, `pubspec.yaml`, the files directly under `lib/`, `hook/`, and the build and manifest files (`AndroidManifest.xml`, `build.gradle`, `build.gradle.kts`, `settings.gradle`, `*.podspec`, `Package.swift`, `CMakeLists.txt`, `Info.plist`, `*.entitlements`, `PrivacyInfo.xcprivacy`, `build.yaml`) remain complete, and `hook/build.dart` and `hook/link.dart` are read with their reach (`SKILL.md`, *Reading terms*), through `lib/src` included. Steps 3 and 7 then read only the reach of the used symbols, Dart and native alike: the exported symbols the user named at the checkpoint (a feature named by description is mapped to the exported symbols the README documents for it; record the mapping), else those called in the README's first code block, else those called in the example entry file (step 5) — saying which. A file is *read in full* only when every declaration in it was reached, else *skimmed* with the declarations read; everything else is *not read*.
 
 ## Exits
 
@@ -71,6 +71,8 @@ Paradigm package | General package — <one line, why it matters here; which sou
 
 ## Dependency inventory
 - Platform: <count> · Author's own: <count, names> · Third-party: <count, names; unverified publishers marked> · Outside pub: <name version (`file:line`), …> · Already in project: <names> · (read with the package marked in any group)
+- Carries: <name: hook | analyzer plugin | builders | devtools | native build (<platforms>) | compiled artifacts>, … | none
+- Compiled artifacts: <path sha256 — source: repository <path> | third-party <name> | not found>, … | none
 - Checkpoint: <question as asked, delegated-core packages marked> | skipped — nothing to offer | not asked — <reason>; <the question that would have been asked>
 - Read in detail (user-approved): <names> | none · Outside pub investigated: <names — what was done> | none
 
@@ -102,6 +104,7 @@ Paradigm package | General package — <one line, why it matters here; which sou
 - Read in full: <files>
 - Skimmed: <files; for a large package, each with the declarations read in full>
 - Not read: <directories/files, why>
+- Not read — compiled: <path, size, sha256>, … | none
 - Sweep terms per category: <category: terms>
 - Metadata not fetched: <fields, why>
 - Run: <date> · Dart <version> · Flutter <version> · archive_sha256 <hash, one per archive read> · repository <url>@<commit> (tag <matched>; one per archive when they differ)

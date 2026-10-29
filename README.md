@@ -8,7 +8,7 @@ Agent skills by koji-1009.
 
 The skill is a directory: `SKILL.md` holds the shared core and routes to `references/adoption.md` or `references/update.md`. Install all three files together.
 
-[**skill/pub-upgrade-check.md**](skill/pub-review/skills/pub-upgrade-check/SKILL.md) — Routine check of whether an app is affected by upgrading its pub.dev dependencies. Reads the package diff only where the app reaches it — used symbols, behavior on called paths, requirements, advisories — and flags supply-chain changes that call for a full pub-review. A single `SKILL.md`; needs a project path.
+[**skill/pub-upgrade-check.md**](skill/pub-review/skills/pub-upgrade-check/SKILL.md) — Routine check of whether an app is affected by upgrading its pub.dev dependencies. Reads the package diff only where the app reaches it — used symbols, behavior on called paths, requirements, advisories — and flags supply-chain changes, each with a follow-up scoped to where it lies. A single `SKILL.md`; needs a project path.
 
 Both skills ship in the `pub-review` plugin, which Claude Code and Codex both read. Each skill has one file, `skill/pub-review/skills/<name>/SKILL.md`; `skill/pub-review.md` and `skill/pub-upgrade-check.md` are symlinks to it.
 
