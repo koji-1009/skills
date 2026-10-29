@@ -30,7 +30,7 @@ It is the light counterpart of pub-review, which reads a package or an upgrade i
 
 ## Step 0 — Inputs
 
-A project path is required — the one given, else the current directory when it holds `pubspec.yaml` and `pubspec.lock`. Without one there is nothing to check against: say so, name pub-review (update) as the reading that works without a project, and stop. Read from it: `pubspec.yaml`, `pubspec.lock`, the target platforms (`android/`, `ios/`, `web/`, `macos/`, `windows/`, `linux/`), and the platform build settings it declares (minimum and compile SDK levels, deployment targets, toolchain versions).
+A project path is required — the one given, else the current directory when it holds `pubspec.yaml` and `pubspec.lock`. Without one there is nothing to check against: say so, name pub-review (upgrade) as the reading that works without a project, and stop. Read from it: `pubspec.yaml`, `pubspec.lock`, the target platforms (`android/`, `ios/`, `web/`, `macos/`, `windows/`, `linux/`), and the platform build settings it declares (minimum and compile SDK levels, deployment targets, toolchain versions).
 
 Packages and targets: the ones the user named (default target: latest stable); else every package under `dependencies` and `dev_dependencies` that `dart pub outdated -C <project>` shows with a newer resolvable version. Ask nothing else; note any default used. If the target is not settled by these (e.g. the latest stable does not resolve), settle it first and note how. For a Flutter app, run every `dart pub` command here as `flutter pub`.
 
